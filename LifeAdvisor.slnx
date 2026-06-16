@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LifeAdvisor.API/LifeAdvisor.API.csproj" />
+    <Project Path="src/LifeAdvisor.Application/LifeAdvisor.Application.csproj" />
+    <Project Path="src/LifeAdvisor.Domain/LifeAdvisor.Domain.csproj" />
+    <Project Path="src/LifeAdvisor.Infrastructure/LifeAdvisor.Infrastructure.csproj" />
+    <Project Path="src/LifeAdvisor.Persistence/LifeAdvisor.Persistence.csproj" />
+    <Project Path="src/LifeAdvisor.Web/LifeAdvisor.Web.csproj">
+      <Build Solution="Debug|*" Project="false" />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LifeAdvisor.IntegrationTests/LifeAdvisor.IntegrationTests.csproj" />
+    <Project Path="tests/LifeAdvisor.UnitTests/LifeAdvisor.UnitTests.csproj" />
+  </Folder>
+</Solution>

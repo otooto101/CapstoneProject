@@ -1,0 +1,11 @@
+﻿using LifeAdvisor.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace LifeAdvisor.Application.Interfaces.Repositories
+{
+    public interface IDigitalTwinRepository : IRepository<DigitalTwin>
+    {
+    }
+}
