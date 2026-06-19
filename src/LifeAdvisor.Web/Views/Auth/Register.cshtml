@@ -5,15 +5,27 @@
 }
 
 <div class="auth-wrapper">
+    <div class="auth-watermark"></div>
     <div class="auth-card">
 
-        <div class="auth-logo">
-            <span class="auth-logo-icon">✦</span>
-            <span class="auth-logo-text">Digital Twin</span>
-        </div>
+        <div class="auth-header-block">
+            <div class="auth-logo auth-logo--stacked">
+                <img src="/images/logo.png" alt="LifeAdvisor Logo" class="auth-logo-img" />
+                <div class="brand-lockup">
+                    <span class="brand-text">LifeAdvisor</span>
+                    <span class="brand-tagline">digital twin guidance</span>
+                </div>
+            </div>
 
-        <h2 class="auth-title">Create your account</h2>
-        <p class="auth-subtitle">Start building your digital twin</p>
+            <div class="auth-header-divider">
+                <span></span>
+            </div>
+
+            <div class="auth-heading-group">
+                <h2 class="auth-title">Create your account</h2>
+                <p class="auth-subtitle">Start building your digital twin</p>
+            </div>
+        </div>
 
         @if (!ViewData.ModelState.IsValid)
         {
@@ -26,12 +38,6 @@
             @Html.AntiForgeryToken()
 
             <div class="auth-field">
-                <label asp-for="FullName">Full name</label>
-                <input asp-for="FullName" class="auth-input" placeholder="Your name" />
-                <span asp-validation-for="FullName" class="validation-message"></span>
-            </div>
-
-            <div class="auth-field">
                 <label asp-for="Email">Email</label>
                 <input asp-for="Email" class="auth-input" placeholder="you@example.com" />
                 <span asp-validation-for="Email" class="validation-message"></span>
@@ -41,27 +47,18 @@
                 <label asp-for="Password">Password</label>
                 <div class="auth-input-wrap">
                     <input asp-for="Password" id="password" class="auth-input" type="password" placeholder="Create a password" />
-                    <button type="button" class="auth-eye" onclick="togglePassword()">👁</button>
+                    <button type="button" class="auth-eye" onclick="togglePassword('password')">👁</button>
                 </div>
                 <span asp-validation-for="Password" class="validation-message"></span>
             </div>
 
             <div class="auth-field">
-                <label asp-for="DateOfBirth">Date of Birth</label>
-                <input asp-for="DateOfBirth" class="auth-input" type="date" />
-                <span asp-validation-for="DateOfBirth" class="validation-message"></span>
-            </div>
-
-            <div class="auth-field">
-                <label asp-for="City">City</label>
-                <input asp-for="City" class="auth-input" placeholder="London" />
-                <span asp-validation-for="City" class="validation-message"></span>
-            </div>
-
-            <div class="auth-field">
-                <label asp-for="Country">Country</label>
-                <input asp-for="Country" class="auth-input" placeholder="UK" />
-                <span asp-validation-for="Country" class="validation-message"></span>
+                <label asp-for="ConfirmPassword">Confirm Password</label>
+                <div class="auth-input-wrap">
+                    <input asp-for="ConfirmPassword" id="confirmPassword" class="auth-input" type="password" placeholder="Repeat your password" />
+                    <button type="button" class="auth-eye" onclick="togglePassword('confirmPassword')">👁</button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="validation-message"></span>
             </div>
 
             <button type="submit" class="auth-btn">Create account</button>
@@ -78,8 +75,8 @@
 </div>
 
 <script>
-    function togglePassword() {
-        const input = document.getElementById('password');
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
         input.type = input.type === 'password' ? 'text' : 'password';
     }
 </script>

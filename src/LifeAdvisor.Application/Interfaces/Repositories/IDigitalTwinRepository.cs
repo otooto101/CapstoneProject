@@ -7,5 +7,6 @@ namespace LifeAdvisor.Application.Interfaces.Repositories
 {
     public interface IDigitalTwinRepository : IRepository<DigitalTwin>
     {
+    Task<DigitalTwin?> GetByIdentityUserIdAsync(string identityUserId, CancellationToken ct = default);
     }
 }

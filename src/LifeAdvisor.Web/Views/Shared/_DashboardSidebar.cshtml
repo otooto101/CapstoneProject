@@ -1,0 +1,31 @@
+@model LifeAdvisor.Web.Models.DashboardShellViewModel
+<div class="dashboard-brand">
+    <img src="/images/logo.png" alt="LifeAdvisor Logo" class="auth-logo-img" />
+    <div class="brand-lockup">
+        <span class="brand-text">LifeAdvisor</span>
+        <span class="brand-tagline">digital twin guidance</span>
+    </div>
+</div>
+
+<nav class="dashboard-nav">
+    <a href="/Home" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : string.Empty)">Dashboard</a>
+    <a href="/Home/Analyze" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Analyze" ? "active" : string.Empty)">Analyze</a>
+    <a href="/Home/History" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : string.Empty)">History</a>
+    <a href="/Home/Settings" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : string.Empty)">Settings</a>
+</nav>
+
+<div class="dashboard-profile-card">
+    <div class="dashboard-avatar">@Model.Initial</div>
+    <div>
+        <div class="dashboard-profile-name">@Model.DisplayName</div>
+        <div class="dashboard-profile-email">@Model.Email</div>
+    </div>
+</div>
+
+<div class="dashboard-sidebar-actions">
+    <button type="button" class="dashboard-action-button">Toggle theme</button>
+    <form method="post" action="/Auth/Logout">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="dashboard-action-button dashboard-action-button--ghost">Log out</button>
+    </form>
+</div>

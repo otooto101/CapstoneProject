@@ -22,6 +22,17 @@ public class TwinNarrativeConfiguration : IEntityTypeConfiguration<TwinNarrative
         builder.Property(t => t.Content)
                .IsRequired(); // Will default to NVARCHAR(MAX), which is perfect for AI context
 
+        builder.Property(t => t.DecisionTitle)
+               .HasMaxLength(300)
+               .IsRequired();
+
+        builder.Property(t => t.ScenarioOptionsJson)
+               .IsRequired();
+
+        builder.Property(t => t.SelectedScenarioTitle)
+               .HasMaxLength(200)
+               .IsRequired(false);
+
         // Store embedding as float array in the vector column
         builder.Property(t => t.Embedding)
                .HasColumnType("vector(1536)")

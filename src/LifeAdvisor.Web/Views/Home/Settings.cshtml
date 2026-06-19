@@ -1,0 +1,56 @@
+@model LifeAdvisor.Web.Models.AnalysisSettingsViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Settings";
+}
+
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <partial name="_DashboardSidebar" model="Model" />
+    </aside>
+
+    <main class="dashboard-main">
+        <partial name="_OnboardingBanner" model="Model" />
+
+        <section class="dashboard-hero-card">
+            <span class="dashboard-eyebrow">Settings</span>
+            <h1 class="dashboard-title">Analysis Settings</h1>
+            <p class="dashboard-subtitle">Control how much past decision history your twin is allowed to use.</p>
+        </section>
+
+        <section class="dashboard-info-card">
+            <div class="dashboard-info-heading">Retrieval Settings</div>
+            <p class="dashboard-info-text">You can change how many related decisions are considered and how strict the similarity cutoff should be.</p>
+
+            @if (ViewData["SettingsSaved"] as bool? == true)
+            {
+                <div class="settings-success">Settings updated successfully.</div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="auth-error mt-3">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            <form method="post" class="settings-form">
+                @Html.AntiForgeryToken()
+
+                <div class="auth-field">
+                    <label asp-for="MaxRelatedDecisions"></label>
+                    <input asp-for="MaxRelatedDecisions" class="auth-input" type="number" min="1" max="20" />
+                    <span asp-validation-for="MaxRelatedDecisions" class="validation-message"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="SimilarityThreshold"></label>
+                    <input asp-for="SimilarityThreshold" class="auth-input" type="number" min="0" max="1" step="0.01" />
+                    <span asp-validation-for="SimilarityThreshold" class="validation-message"></span>
+                </div>
+
+                <button type="submit" class="dashboard-primary-cta">Save Settings</button>
+            </form>
+        </section>
+    </main>
+</div>
