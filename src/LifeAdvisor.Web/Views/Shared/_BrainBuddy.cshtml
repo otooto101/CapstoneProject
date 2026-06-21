@@ -1,0 +1,169 @@
+@*
+    Cortex — the brain mascot.
+    Lives in the background of Home / Login / Register and reacts to REAL input:
+      • eyes follow the cursor
+      • walks (legs swing + drifts) as you scroll
+      • covers its eyes while you're in a password field
+*@
+<div class="brain-buddy" id="brainBuddy" aria-hidden="true">
+    <div class="bb-bob">
+        <svg class="bb-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="bbBrain" x1="42" y1="58" x2="160" y2="150" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#f4e4bf" />
+                    <stop offset="0.5" stop-color="#d9b87a" />
+                    <stop offset="1" stop-color="#bd9450" />
+                </linearGradient>
+            </defs>
+
+            <!-- legs: each foot is grouped with its leg so they swing together -->
+            <g class="bb-legs">
+                <g class="bb-leg bb-leg-l">
+                    <line x1="86" y1="146" x2="82" y2="204" stroke="#b8924c" stroke-width="6" stroke-linecap="round" />
+                    <ellipse cx="76" cy="206" rx="11" ry="6" fill="#b8924c" />
+                </g>
+                <g class="bb-leg bb-leg-r">
+                    <line x1="114" y1="146" x2="118" y2="204" stroke="#b8924c" stroke-width="6" stroke-linecap="round" />
+                    <ellipse cx="124" cy="206" rx="11" ry="6" fill="#b8924c" />
+                </g>
+            </g>
+
+            <!-- arms (after body so hands can rise over the eyes) -->
+            <!-- drawn below, but we keep the order body -> face -> arms -->
+
+            <!-- brain body: overlapping lobes -->
+            <g class="bb-brain" fill="url(#bbBrain)">
+                <ellipse cx="100" cy="106" rx="60" ry="44" />
+                <circle cx="62" cy="88" r="22" />
+                <circle cx="86" cy="74" r="24" />
+                <circle cx="114" cy="74" r="24" />
+                <circle cx="138" cy="88" r="22" />
+                <circle cx="72" cy="122" r="20" />
+                <circle cx="128" cy="122" r="20" />
+            </g>
+
+            <!-- gyri (brain folds) -->
+            <g class="bb-gyri" stroke="#a8854a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.65">
+                <path d="M100 70 V150" />
+                <path d="M78 92 C90 100 86 114 74 122" />
+                <path d="M122 92 C110 100 114 114 126 122" />
+                <path d="M64 112 C78 116 80 130 70 140" />
+                <path d="M136 112 C122 116 120 130 130 140" />
+            </g>
+
+            <!-- blush -->
+            <g class="bb-blush" fill="#ee9a73">
+                <ellipse cx="67" cy="118" rx="8" ry="4.6" />
+                <ellipse cx="133" cy="118" rx="8" ry="4.6" />
+            </g>
+
+            <!-- eyebrows: gentle + friendly -->
+            <g class="bb-brows" stroke="#9c7a36" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.8">
+                <path d="M73 92 Q84 87 94 91" />
+                <path d="M106 91 Q116 87 127 92" />
+            </g>
+
+            <!-- face -->
+            <g class="bb-face">
+                <g class="bb-eye bb-eye-l">
+                    <g class="bb-eye-open">
+                        <circle class="bb-eye-white" cx="85" cy="106" r="12" fill="#fffaf0" />
+                        <circle class="bb-pupil" cx="85" cy="107" r="6.6" fill="#2a1d11" />
+                        <circle class="bb-eye-shine" cx="88" cy="103.4" r="2.7" fill="#ffffff" />
+                        <circle class="bb-eye-shine" cx="82.4" cy="109.4" r="1.5" fill="#ffffff" opacity="0.85" />
+                    </g>
+                    <path class="bb-eye-closed" d="M76 105 Q85 113 94 105" stroke="#2a1d11" stroke-width="3.4" fill="none" stroke-linecap="round" />
+                </g>
+                <g class="bb-eye bb-eye-r">
+                    <g class="bb-eye-open">
+                        <circle class="bb-eye-white" cx="115" cy="106" r="12" fill="#fffaf0" />
+                        <circle class="bb-pupil" cx="115" cy="107" r="6.6" fill="#2a1d11" />
+                        <circle class="bb-eye-shine" cx="118" cy="103.4" r="2.7" fill="#ffffff" />
+                        <circle class="bb-eye-shine" cx="112.4" cy="109.4" r="1.5" fill="#ffffff" opacity="0.85" />
+                    </g>
+                    <path class="bb-eye-closed" d="M106 105 Q115 113 124 105" stroke="#2a1d11" stroke-width="3.4" fill="none" stroke-linecap="round" />
+                </g>
+                <path class="bb-mouth" d="M83 122 Q100 138 117 122" stroke="#3a2418" stroke-width="4" fill="none" stroke-linecap="round" />
+            </g>
+
+            <!-- arms last so the hands sit above the face when raised -->
+            <g class="bb-arms" stroke="#b8924c" stroke-width="6" stroke-linecap="round" fill="#b8924c">
+                <g class="bb-arm bb-arm-l">
+                    <path d="M50 112 C36 120 32 134 34 146" fill="none" />
+                    <circle cx="34" cy="148" r="7" stroke="none" />
+                </g>
+                <g class="bb-arm bb-arm-r">
+                    <path d="M150 112 C164 120 168 134 166 146" fill="none" />
+                    <circle cx="166" cy="148" r="7" stroke="none" />
+                </g>
+            </g>
+        </svg>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var bb = document.getElementById('brainBuddy');
+        if (!bb || bb.dataset.init) return;
+        bb.dataset.init = '1';
+
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var pupils = bb.querySelectorAll('.bb-pupil, .bb-eye-shine');
+
+        // --- Eyes follow the real cursor ---
+        var tx = 0, ty = 0, cx = 0, cy = 0;
+        document.addEventListener('mousemove', function (e) {
+            var r = bb.getBoundingClientRect();
+            var ox = r.left + r.width * 0.5;
+            var oy = r.top + r.height * 0.40;
+            var dx = e.clientX - ox, dy = e.clientY - oy;
+            var d = Math.hypot(dx, dy) || 1;
+            var reach = Math.min(4.5, d / 45);
+            tx = (dx / d) * reach;
+            ty = (dy / d) * reach;
+        }, { passive: true });
+
+        function frame() {
+            cx += (tx - cx) * 0.15;
+            cy += (ty - cy) * 0.15;
+            var t = 'translate(' + cx.toFixed(2) + ',' + cy.toFixed(2) + ')';
+            for (var i = 0; i < pupils.length; i++) pupils[i].setAttribute('transform', t);
+            requestAnimationFrame(frame);
+        }
+        if (!reduce) requestAnimationFrame(frame);
+
+        // --- Blink now and then ---
+        if (!reduce) {
+            (function loopBlink() {
+                var wait = 3200 + Math.random() * 2800;
+                setTimeout(function () {
+                    if (!bb.classList.contains('is-shy')) {
+                        bb.classList.add('is-blinking');
+                        setTimeout(function () { bb.classList.remove('is-blinking'); }, 150);
+                    }
+                    loopBlink();
+                }, wait);
+            })();
+        }
+
+        // --- Look away while typing a password ---
+        var pw = document.querySelectorAll('input[type="password"]');
+        for (var j = 0; j < pw.length; j++) {
+            pw[j].addEventListener('focus', function () { bb.classList.add('is-shy'); });
+            pw[j].addEventListener('blur', function () { bb.classList.remove('is-shy'); });
+        }
+
+        // --- Walk as you scroll ---
+        var walkTimer;
+        window.addEventListener('scroll', function () {
+            if (reduce) return;
+            var y = window.scrollY || window.pageYOffset || 0;
+            var x = Math.sin(y / 220) * 46;
+            bb.style.setProperty('--bb-x', x.toFixed(1) + 'px');
+            bb.classList.add('is-walking');
+            bb.classList.toggle('bb-flip', x < -2);
+            clearTimeout(walkTimer);
+            walkTimer = setTimeout(function () { bb.classList.remove('is-walking'); }, 220);
+        }, { passive: true });
+    })();
+</script>

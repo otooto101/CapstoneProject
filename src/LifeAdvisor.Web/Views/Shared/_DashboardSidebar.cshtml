@@ -23,7 +23,11 @@
 </div>
 
 <div class="dashboard-sidebar-actions">
-    <button type="button" class="dashboard-action-button">Toggle theme</button>
+    <button type="button" class="dashboard-action-button" data-theme-toggle>
+        <span class="icon-sun" aria-hidden="true">☀</span>
+        <span class="icon-moon" aria-hidden="true">☾</span>
+        Toggle theme
+    </button>
     <form method="post" action="/Auth/Logout">
         @Html.AntiForgeryToken()
         <button type="submit" class="dashboard-action-button dashboard-action-button--ghost">Log out</button>

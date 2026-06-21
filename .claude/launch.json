@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "LifeAdvisor.Web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "src/LifeAdvisor.Web/LifeAdvisor.Web.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5112
+    },
+    {
+      "name": "LifeAdvisor.API",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "src/LifeAdvisor.API/LifeAdvisor.API.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5003
+    }
+  ]
+}

@@ -15,6 +15,10 @@
             </div>
         </div>
         <div class="home-nav-links">
+            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light or dark theme" title="Toggle theme">
+                <span class="icon-sun" aria-hidden="true">☀</span>
+                <span class="icon-moon" aria-hidden="true">☾</span>
+            </button>
             <a href="/Auth/Login" class="hero-btn-outline" style="padding: 1.5px; border-radius: 8px;">
                 <span class="hero-btn-outline-inner" style="padding: 0.4rem 1.2rem; font-size: 0.85rem;">Login</span>
             </a>
@@ -22,20 +26,26 @@
         </div>
     </nav>
 
+    <partial name="_BrainBuddy" />
+
     <section class="hero">
         <div class="hero-watermark"></div>
         <div class="hero-grid-bg"></div>
         <div class="hero-glow"></div>
         <div class="hero-glow hero-glow-2"></div>
         <div class="hero-content">
-            <div class="hero-badge">✦ AI-Powered Life Guidance</div>
+            <div class="hero-kicker">
+                <span class="hero-kicker-rule"></span>
+                Private by design
+            </div>
             <h1 class="hero-title">
-                Build Your
+                <span class="hero-title-lead">Build Your</span>
                 <span class="hero-title-gradient">Digital Twin</span>
             </h1>
             <p class="hero-subtitle">
-                A personalized AI model of you — your values, your goals, your story.
-                Get guidance that actually understands who you are.
+                A private twin that remembers your values, your story, and the choices
+                that shaped you — so when a hard decision comes, you're not weighing it
+                alone, and you're never settling for generic advice.
             </p>
             <div class="hero-actions">
                 <a href="/Auth/Register" class="hero-btn-primary">
@@ -46,9 +56,193 @@
                     <span class="hero-btn-outline-inner">Sign in</span>
                 </a>
             </div>
-            <p class="hero-social-proof">✦ Join thousands building their digital twin</p>
+            <p class="hero-social-proof">Trusted by thousands building their digital twin</p>
         </div>
     </section>
+
+    <div class="landing">
+
+        <section class="lp-strip reveal">
+            <span class="lp-strip-item"><span class="lp-dot"></span>Private by design</span>
+            <span class="lp-strip-item"><span class="lp-dot"></span>Remembers your whole story</span>
+            <span class="lp-strip-item"><span class="lp-dot"></span>Models the road ahead</span>
+        </section>
+
+        <section class="lp-section reveal" id="how">
+            <div class="lp-container">
+                <header class="lp-head">
+                    <span class="lp-eyebrow">How it works</span>
+                    <h2 class="lp-title">Three steps to a clearer decision</h2>
+                    <p class="lp-lead">No endless chatting. LifeAdvisor learns who you are, then thinks the decision through with you.</p>
+                </header>
+                <div class="lp-steps">
+                    <article class="lp-step">
+                        <span class="lp-step-num">01</span>
+                        <h3 class="lp-step-title">Build your twin</h3>
+                        <p>Answer a short onboarding about your values, your life stage, and what matters most. Your twin takes shape — and it never forgets.</p>
+                    </article>
+                    <article class="lp-step">
+                        <span class="lp-step-num">02</span>
+                        <h3 class="lp-step-title">Bring a real decision</h3>
+                        <p>Describe what you're weighing in your own words. The more honest you are, the more the guidance reflects the real you.</p>
+                    </article>
+                    <article class="lp-step">
+                        <span class="lp-step-num">03</span>
+                        <h3 class="lp-step-title">See the paths modeled</h3>
+                        <p>Each option is mapped into a likely future and scored against who you are, with the trade-offs laid bare — so the choice is finally yours to make with clarity.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="lp-section lp-preview reveal">
+            <div class="lp-container lp-preview-grid">
+                <div class="lp-preview-copy">
+                    <span class="lp-eyebrow">Inside LifeAdvisor</span>
+                    <h2 class="lp-title">See every path before you walk it</h2>
+                    <p class="lp-lead">Every decision is modeled as a set of possible futures, scored against your values and the choices you've made before.</p>
+                    <ul class="lp-checks">
+                        <li>Scenarios weighed against the real you</li>
+                        <li>Honest trade-offs, not blind cheerleading</li>
+                        <li>Every decision saved to your private history</li>
+                    </ul>
+                </div>
+                <div class="lp-mock" aria-hidden="true">
+                    <div class="lp-mock-bar">
+                        <span class="lp-mock-dot"></span><span class="lp-mock-dot"></span><span class="lp-mock-dot"></span>
+                        <span class="lp-mock-bar-label">decision analysis</span>
+                    </div>
+                    <div class="lp-mock-body">
+                        <div class="lp-mock-prompt">"Should I take the job offer in Berlin, or stay close to family?"</div>
+                        <div class="lp-mock-scenario is-top">
+                            <div class="lp-mock-scenario-head">
+                                <span class="lp-mock-scenario-title">Take the offer</span>
+                                <span class="lp-mock-score">87</span>
+                            </div>
+                            <div class="lp-mock-track"><span class="lp-mock-fill" style="--w:87%"></span></div>
+                            <p class="lp-mock-note">Strong growth fit; aligns with your appetite for change.</p>
+                        </div>
+                        <div class="lp-mock-scenario">
+                            <div class="lp-mock-scenario-head">
+                                <span class="lp-mock-scenario-title">Negotiate remote</span>
+                                <span class="lp-mock-score">64</span>
+                            </div>
+                            <div class="lp-mock-track"><span class="lp-mock-fill" style="--w:64%"></span></div>
+                            <p class="lp-mock-note">Keeps family ties; depends on employer flexibility.</p>
+                        </div>
+                        <div class="lp-mock-scenario">
+                            <div class="lp-mock-scenario-head">
+                                <span class="lp-mock-scenario-title">Stay put</span>
+                                <span class="lp-mock-score">52</span>
+                            </div>
+                            <div class="lp-mock-track"><span class="lp-mock-fill" style="--w:52%"></span></div>
+                            <p class="lp-mock-note">Comfort now, but may stall the goals you set last year.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lp-section reveal">
+            <div class="lp-container">
+                <header class="lp-head">
+                    <span class="lp-eyebrow">Why it's different</span>
+                    <h2 class="lp-title">Not another chatbot</h2>
+                </header>
+                <div class="lp-features">
+                    <article class="lp-feature">
+                        <span class="lp-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3 1.8"></path></svg>
+                        </span>
+                        <h3>Long-term memory</h3>
+                        <p>Your twin remembers every value, story, and decision — so guidance compounds instead of resetting each time you return.</p>
+                    </article>
+                    <article class="lp-feature">
+                        <span class="lp-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h4"></path><path d="M9 12c5 0 4-6 10-6"></path><path d="M9 12c5 0 4 6 10 6"></path><path d="M16 4l3 2-3 2"></path><path d="M16 14l3 2-3 2"></path></svg>
+                        </span>
+                        <h3>Scenario modeling</h3>
+                        <p>Decisions are mapped into possible futures and scored mathematically — clarity you can actually weigh, not vague reassurance.</p>
+                    </article>
+                    <article class="lp-feature">
+                        <span class="lp-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2.2"></rect><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"></path></svg>
+                        </span>
+                        <h3>Private by design</h3>
+                        <p>Your inner life is yours. Your data is never sold, and you can export or delete it at any time.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="lp-section reveal">
+            <div class="lp-container">
+                <header class="lp-head">
+                    <span class="lp-eyebrow">Illustrative stories</span>
+                    <h2 class="lp-title">What it feels like to decide with a twin</h2>
+                </header>
+                <div class="lp-reviews">
+                    <figure class="lp-review">
+                        <span class="lp-quote-mark">&ldquo;</span>
+                        <blockquote>It didn't tell me what to do — it showed me what each road actually cost. I finally moved without second-guessing for weeks.</blockquote>
+                        <figcaption><span class="lp-review-name">Maya R.</span><span class="lp-review-role">Career switch</span></figcaption>
+                    </figure>
+                    <figure class="lp-review">
+                        <span class="lp-quote-mark">&ldquo;</span>
+                        <blockquote>Because it remembered the values I set months ago, the advice felt like it came from someone who actually knows me.</blockquote>
+                        <figcaption><span class="lp-review-name">Daniel K.</span><span class="lp-review-role">Relocation</span></figcaption>
+                    </figure>
+                    <figure class="lp-review">
+                        <span class="lp-quote-mark">&ldquo;</span>
+                        <blockquote>Seeing the trade-offs scored side by side took the panic out of a decision I'd been avoiding for a year.</blockquote>
+                        <figcaption><span class="lp-review-name">Sofia L.</span><span class="lp-review-role">Going back to study</span></figcaption>
+                    </figure>
+                </div>
+                <p class="lp-reviews-note">Stories shown are illustrative examples, not real customers.</p>
+            </div>
+        </section>
+
+        <section class="lp-cta reveal">
+            <div class="lp-container lp-cta-inner">
+                <h2 class="lp-cta-title">Your next decision deserves the real you.</h2>
+                <p class="lp-cta-sub">Build your digital twin in minutes. It's private, and it's yours.</p>
+                <a href="/Auth/Register" class="hero-btn-primary"><span>Start building</span><span class="hero-btn-arrow">→</span></a>
+            </div>
+        </section>
+
+        <footer class="lp-footer">
+            <div class="lp-footer-brand">
+                <img src="/images/logo.png" alt="LifeAdvisor" class="auth-logo-img lp-footer-logo" />
+                <div class="brand-lockup">
+                    <span class="brand-text">LifeAdvisor</span>
+                    <span class="brand-tagline">digital twin guidance</span>
+                </div>
+            </div>
+            <nav class="lp-footer-links">
+                <a href="#how">How it works</a>
+                <a href="/terms">Terms</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/Auth/Login">Login</a>
+            </nav>
+            <span class="lp-footer-copy">© 2026 LifeAdvisor</span>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            var els = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                els.forEach(function (el) { el.classList.add('is-visible'); });
+                return;
+            }
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+                });
+            }, { threshold: 0.12 });
+            els.forEach(function (el) { io.observe(el); });
+        })();
+    </script>
 }
 else
 {

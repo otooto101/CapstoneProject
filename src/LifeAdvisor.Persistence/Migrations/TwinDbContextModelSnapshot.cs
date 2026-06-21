@@ -243,8 +243,8 @@ namespace LifeAdvisor.Persistence.Migrations
                     b.Property<int>("DigitalTwinId")
                         .HasColumnType("int");
 
-                    b.Property<SqlVector<float>?>("Embedding")
-                        .HasColumnType("vector(1536)");
+                    b.Property<float[]>("Embedding")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsCompletedDecision")
                         .HasColumnType("bit");

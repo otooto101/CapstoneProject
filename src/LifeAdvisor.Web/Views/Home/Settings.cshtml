@@ -19,12 +19,12 @@
         </section>
 
         <section class="dashboard-info-card">
-            <div class="dashboard-info-heading">Retrieval Settings</div>
-            <p class="dashboard-info-text">You can change how many related decisions are considered and how strict the similarity cutoff should be.</p>
+            <div class="dashboard-info-heading">How your twin uses your history</div>
+            <p class="dashboard-info-text">When you bring a new decision, your twin looks back through your past decisions for relevant context. These two controls decide how much of that history it leans on.</p>
 
             @if (ViewData["SettingsSaved"] as bool? == true)
             {
-                <div class="settings-success">Settings updated successfully.</div>
+                <div class="settings-success">Settings saved.</div>
             }
 
             @if (!ViewData.ModelState.IsValid)
@@ -37,20 +37,72 @@
             <form method="post" class="settings-form">
                 @Html.AntiForgeryToken()
 
-                <div class="auth-field">
-                    <label asp-for="MaxRelatedDecisions"></label>
-                    <input asp-for="MaxRelatedDecisions" class="auth-input" type="number" min="1" max="20" />
+                <div class="setting-control">
+                    <div class="setting-control-head">
+                        <div>
+                            <label class="setting-label" asp-for="MaxRelatedDecisions">Past decisions to consider</label>
+                            <p class="setting-desc">How many of your most relevant past decisions your twin can pull in as context.</p>
+                        </div>
+                        <div class="setting-readout">
+                            <span class="setting-readout-value" id="maxValue">5</span>
+                            <span class="setting-readout-unit">decisions</span>
+                        </div>
+                    </div>
+                    <input asp-for="MaxRelatedDecisions" type="range" min="1" max="20" step="1"
+                           class="setting-range" oninput="updateMax(this.value)" />
+                    <div class="setting-scale">
+                        <span>Just a few</span>
+                        <span>A lot (20)</span>
+                    </div>
                     <span asp-validation-for="MaxRelatedDecisions" class="validation-message"></span>
                 </div>
 
-                <div class="auth-field">
-                    <label asp-for="SimilarityThreshold"></label>
-                    <input asp-for="SimilarityThreshold" class="auth-input" type="number" min="0" max="1" step="0.01" />
+                <div class="setting-control">
+                    <div class="setting-control-head">
+                        <div>
+                            <label class="setting-label" asp-for="SimilarityThreshold">How closely they must match</label>
+                            <p class="setting-desc">A higher cutoff means only decisions very similar to the new one are used. Lower it to cast a wider net.</p>
+                        </div>
+                        <div class="setting-readout">
+                            <span class="setting-readout-value" id="simValue">75%</span>
+                            <span class="setting-readout-unit" id="simWord">Focused</span>
+                        </div>
+                    </div>
+                    <input asp-for="SimilarityThreshold" type="range" min="0" max="1" step="0.05"
+                           class="setting-range" oninput="updateSim(this.value)" />
+                    <div class="setting-scale">
+                        <span>Wide net</span>
+                        <span>Exact matches</span>
+                    </div>
                     <span asp-validation-for="SimilarityThreshold" class="validation-message"></span>
                 </div>
 
-                <button type="submit" class="dashboard-primary-cta">Save Settings</button>
+                <button type="submit" class="dashboard-primary-cta" data-loading-text="Saving…">Save settings</button>
             </form>
         </section>
     </main>
 </div>
+
+<script>
+    function simWordFor(v) {
+        if (v < 0.4) return 'Wide net';
+        if (v < 0.6) return 'Balanced';
+        if (v < 0.8) return 'Focused';
+        return 'Strict';
+    }
+    function updateMax(v) {
+        document.getElementById('maxValue').textContent = v;
+        var el = document.getElementById('MaxRelatedDecisions');
+        el.style.setProperty('--pct', ((v - 1) / (20 - 1) * 100) + '%');
+    }
+    function updateSim(v) {
+        var n = parseFloat(v);
+        document.getElementById('simValue').textContent = Math.round(n * 100) + '%';
+        document.getElementById('simWord').textContent = simWordFor(n);
+        document.getElementById('SimilarityThreshold').style.setProperty('--pct', (n * 100) + '%');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        updateMax(document.getElementById('MaxRelatedDecisions').value);
+        updateSim(document.getElementById('SimilarityThreshold').value);
+    });
+</script>

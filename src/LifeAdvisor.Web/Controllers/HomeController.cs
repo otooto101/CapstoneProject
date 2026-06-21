@@ -19,6 +19,12 @@ public class HomeController(ISender sender) : Controller
         return View(model);
     }
 
+    [HttpGet("/terms")]
+    public IActionResult Terms() => View();
+
+    [HttpGet("/privacy")]
+    public IActionResult Privacy() => View();
+
     [HttpGet]
     public async Task<IActionResult> Analyze(CancellationToken ct)
     {

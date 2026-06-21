@@ -38,8 +38,8 @@
                 </div>
 
                 <div class="analyze-form-actions">
-                    <button type="submit" class="dashboard-primary-cta" id="analyze-submit">Analyze with My Twin</button>
-                    <span class="analyze-pending" id="analyze-pending" hidden>Analyzing your situation...</span>
+                    <button type="submit" class="dashboard-primary-cta" id="analyze-submit" data-loading-text="Analyzing your situation…">Analyze with My Twin</button>
+                    <span class="analyze-pending" id="analyze-pending" hidden>Your twin is thinking this through — this can take a few seconds…</span>
                 </div>
             </form>
         </section>
@@ -136,15 +136,10 @@
 <script>
     (() => {
         const form = document.getElementById('analyze-form');
-        const submitButton = document.getElementById('analyze-submit');
         const pending = document.getElementById('analyze-pending');
-
-        if (!form || !submitButton || !pending) return;
-
-        form.addEventListener('submit', () => {
-            submitButton.disabled = true;
-            submitButton.textContent = 'Analyzing...';
-            pending.hidden = false;
-        });
+        if (!form || !pending) return;
+        // The global submit handler shows the button spinner; here we just
+        // reveal the reassurance note for the longer AI wait.
+        form.addEventListener('submit', () => { pending.hidden = false; });
     })();
 </script>

@@ -61,11 +61,11 @@
                 <span asp-validation-for="ConfirmPassword" class="validation-message"></span>
             </div>
 
-            <button type="submit" class="auth-btn">Create account</button>
+            <button type="submit" class="auth-btn" data-loading-text="Creating your account…">Create account</button>
         </form>
 
         <p class="auth-terms">
-            By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            By creating an account, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
         </p>
 
         <p class="auth-switch">
@@ -73,6 +73,8 @@
         </p>
     </div>
 </div>
+
+<partial name="_BrainBuddy" />
 
 <script>
     function togglePassword(inputId) {

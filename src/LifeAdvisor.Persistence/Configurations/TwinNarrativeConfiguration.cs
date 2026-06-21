@@ -1,5 +1,9 @@
-﻿using LifeAdvisor.Domain.Entities;
+﻿using System;
+using System.Linq;
+using System.Text.Json;
+using LifeAdvisor.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -33,9 +37,23 @@ public class TwinNarrativeConfiguration : IEntityTypeConfiguration<TwinNarrative
                .HasMaxLength(200)
                .IsRequired(false);
 
-        // Store embedding as float array in the vector column
+        // Store the embedding as a JSON array in an nvarchar(max) column.
+        // Native SQL Server "vector" types require SQL Server 2025; this keeps the
+        // schema compatible with SQL Server 2022 and earlier. Cosine similarity is
+        // computed in C# (see RelatedDecisionRetriever), so no DB-side vector ops
+        // are needed.
+        var embeddingConverter = new ValueConverter<float[]?, string?>(
+            v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+            v => string.IsNullOrEmpty(v) ? null : JsonSerializer.Deserialize<float[]>(v, (JsonSerializerOptions?)null));
+
+        var embeddingComparer = new ValueComparer<float[]?>(
+            (a, b) => (a == null && b == null) || (a != null && b != null && a.SequenceEqual(b)),
+            v => v == null ? 0 : v.Aggregate(0, (acc, f) => HashCode.Combine(acc, f.GetHashCode())),
+            v => v == null ? null : v.ToArray());
+
         builder.Property(t => t.Embedding)
-               .HasColumnType("vector(1536)")
+               .HasConversion(embeddingConverter, embeddingComparer)
+               .HasColumnType("nvarchar(max)")
                .IsRequired(false);
 
         builder.Property(t => t.CreatedAt)
