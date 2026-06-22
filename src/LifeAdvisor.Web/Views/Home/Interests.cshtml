@@ -1,0 +1,79 @@
+@model LifeAdvisor.Web.Models.InterestsViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Interests";
+}
+
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <partial name="_DashboardSidebar" model="Model" />
+    </aside>
+
+    <main class="dashboard-main">
+        <partial name="_OnboardingBanner" model="Model" />
+
+        <section class="dashboard-hero-card">
+            <span class="dashboard-eyebrow">My Interests</span>
+            <h1 class="dashboard-title">What you care about</h1>
+            <p class="dashboard-subtitle">Ranked by how into each topic you are. Real-world updates on these will land right here.</p>
+        </section>
+
+        @if (Model.Interests.Count == 0)
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Nothing here yet</div>
+                <p class="dashboard-info-text">You haven't picked any interests. Swipe through a few topics and your twin will start learning what matters to you.</p>
+                <a href="/Home/Discover" class="dashboard-primary-cta" style="margin-top: 1.25rem; align-self: flex-start;">Start swiping</a>
+            </section>
+        }
+        else
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Tuned in</div>
+                <p class="dashboard-info-text">Your twin will prioritise updates roughly in this order — your top interests first.</p>
+
+                <div class="interest-list">
+                    @foreach (var interest in Model.Interests)
+                    {
+                        <article class="interest-row prio-@interest.Priority">
+                            <div class="interest-emoji">@interest.Emoji</div>
+                            <div class="interest-main">
+                                <div class="interest-top">
+                                    <span class="interest-title">@interest.Title</span>
+                                    <span class="interest-badge">@interest.PriorityLabel</span>
+                                </div>
+                                <span class="interest-cat">@interest.Category</span>
+                                <p class="interest-desc">@interest.Description</p>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <a href="/Home/Discover" class="dashboard-secondary-link">Swipe more topics →</a>
+            </section>
+
+            <section class="dashboard-info-card updates-card">
+                <span class="dashboard-eyebrow">Your updates</span>
+                <div class="dashboard-info-heading">Personalised updates are on the way</div>
+                <p class="dashboard-info-text">
+                    Soon, the latest on your top interests will show up here as a feed — and the important ones will reach you
+                    as notifications. No noise, just the stuff you told us you actually care about. For now your twin is
+                    busy learning what matters most to you.
+                </p>
+                <div class="updates-placeholder">
+                    @foreach (var interest in Model.Interests.Take(3))
+                    {
+                        <div class="updates-skeleton">
+                            <span class="updates-skeleton-emoji">@interest.Emoji</span>
+                            <div class="updates-skeleton-lines">
+                                <span class="updates-skeleton-line is-wide"></span>
+                                <span class="updates-skeleton-line"></span>
+                            </div>
+                            <span class="updates-skeleton-tag">@interest.Title</span>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+</div>

@@ -4,6 +4,9 @@ using LifeAdvisor.Application.Features.Analysis.Commands.UpdateAnalysisSettings;
 using LifeAdvisor.Application.Features.Analysis.Queries.GetDecisionHistory;
 using LifeAdvisor.Application.Features.Analysis.Queries.GetAnalysisSettings;
 using LifeAdvisor.Application.Features.DigitalTwins.Queries.GetOnboardingStatus;
+using LifeAdvisor.Application.Features.Discovery.Commands.SaveInterest;
+using LifeAdvisor.Application.Features.Discovery.Queries.GetSwipeDeck;
+using LifeAdvisor.Application.Features.Discovery.Queries.GetUserInterests;
 using LifeAdvisor.Web.Infrastructure;
 using LifeAdvisor.Web.Models;
 using MediatR;
@@ -24,6 +27,53 @@ public class HomeController(ISender sender) : Controller
 
     [HttpGet("/privacy")]
     public IActionResult Privacy() => View();
+
+    [HttpGet]
+    public async Task<IActionResult> Discover(CancellationToken ct)
+    {
+        var model = await RequireSignedInAsync(new DiscoverViewModel(), ct);
+        if (model is null)
+            return RedirectToAction("Login", "Auth");
+
+        if (model.IsOnboardingCompleted)
+        {
+            var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId)!;
+            model.Topics = await sender.Send(new GetSwipeDeckQuery(userId), ct);
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveInterest(int topicId, bool isInterested, int priority, CancellationToken ct)
+    {
+        var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Json(new { ok = false, error = "Please sign in again." });
+
+        try
+        {
+            var remaining = await sender.Send(new SaveInterestCommand(userId, topicId, isInterested, priority), ct);
+            return Json(new { ok = true, remaining });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Json(new { ok = false, error = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Interests(CancellationToken ct)
+    {
+        var model = await RequireSignedInAsync(new InterestsViewModel(), ct);
+        if (model is null)
+            return RedirectToAction("Login", "Auth");
+
+        var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId)!;
+        model.Interests = await sender.Send(new GetUserInterestsQuery(userId), ct);
+
+        return View(model);
+    }
 
     [HttpGet]
     public async Task<IActionResult> Analyze(CancellationToken ct)

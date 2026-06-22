@@ -1,0 +1,233 @@
+@model LifeAdvisor.Web.Models.DiscoverViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Discover";
+}
+
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <partial name="_DashboardSidebar" model="Model" />
+    </aside>
+
+    <main class="dashboard-main">
+        <partial name="_OnboardingBanner" model="Model" />
+
+        <section class="dashboard-hero-card">
+            <span class="dashboard-eyebrow">Discover</span>
+            <h1 class="dashboard-title">What are you into?</h1>
+            <p class="dashboard-subtitle">Swipe through a few topics so your twin only sends you updates worth your time.</p>
+        </section>
+
+        @if (!Model.IsOnboardingCompleted)
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Almost there</div>
+                <p class="dashboard-info-text">Finish onboarding first so your twin has somewhere to remember what you like.</p>
+                <a href="/Auth/Onboarding" class="dashboard-primary-cta" style="margin-top: 1.25rem; align-self: flex-start;">Complete onboarding</a>
+            </section>
+        }
+        else
+        {
+            <section class="dashboard-info-card">
+                @Html.AntiForgeryToken()
+                <div class="swipe-area" id="swipeArea">
+                    @if (Model.Topics.Count == 0)
+                    {
+                        <div class="swipe-empty">
+                            <div class="swipe-empty-emoji">✨</div>
+                            <h3 class="swipe-empty-title">You're all caught up</h3>
+                            <p class="swipe-empty-text">You've been through every topic. Your twin is already tailoring things to what you picked.</p>
+                            <a href="/Home/Interests" class="dashboard-primary-cta">See my interests</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="swipe-progress" id="swipeProgress"><span id="swipeCount">@Model.Topics.Count</span> to go</div>
+
+                        <div class="swipe-deck" id="swipeDeck">
+                            @foreach (var topic in Model.Topics)
+                            {
+                                <article class="swipe-card" data-topic-id="@topic.TopicId">
+                                    <span class="swipe-stamp swipe-stamp-yes">INTERESTED</span>
+                                    <span class="swipe-stamp swipe-stamp-no">PASS</span>
+
+                                    <div class="swipe-card-emoji">@topic.Emoji</div>
+                                    <span class="swipe-card-category">@topic.Category</span>
+                                    <h3 class="swipe-card-title">@topic.Title</h3>
+                                    <p class="swipe-card-desc">@topic.Description</p>
+
+                                    <div class="swipe-priority">
+                                        <span class="swipe-priority-q">How into this are you?</span>
+                                        <div class="swipe-priority-buttons">
+                                            <button type="button" class="swipe-prio-btn" data-priority="1">Curious</button>
+                                            <button type="button" class="swipe-prio-btn" data-priority="2">Keen</button>
+                                            <button type="button" class="swipe-prio-btn" data-priority="3">Obsessed</button>
+                                        </div>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+
+                        <div class="swipe-controls" id="swipeControls">
+                            <button type="button" class="swipe-btn swipe-btn-no" id="swipeNo" aria-label="Not interested">✕</button>
+                            <span class="swipe-hint">drag a card or tap</span>
+                            <button type="button" class="swipe-btn swipe-btn-yes" id="swipeYes" aria-label="Interested">♥</button>
+                        </div>
+
+                        <div class="swipe-done" id="swipeDone" hidden>
+                            <div class="swipe-empty-emoji">🎉</div>
+                            <h3 class="swipe-empty-title">That's everyone</h3>
+                            <p class="swipe-empty-text">Nice — your twin now knows what you care about.</p>
+                            <a href="/Home/Interests" class="dashboard-primary-cta">See my interests</a>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+</div>
+
+<script>
+    (function () {
+        var area = document.getElementById('swipeArea');
+        if (!area) return;
+        var deck = document.getElementById('swipeDeck');
+        if (!deck) return;
+
+        var token = (area.querySelector('input[name="__RequestVerificationToken"]') || {}).value || '';
+        var countEl = document.getElementById('swipeCount');
+        var doneEl = document.getElementById('swipeDone');
+        var controls = document.getElementById('swipeControls');
+        var progress = document.getElementById('swipeProgress');
+        var btnYes = document.getElementById('swipeYes');
+        var btnNo = document.getElementById('swipeNo');
+
+        var THRESHOLD = 90;
+        var busy = false;
+
+        function activeCards() {
+            return Array.prototype.slice.call(deck.querySelectorAll('.swipe-card:not(.gone)'));
+        }
+
+        function front() { return activeCards()[0] || null; }
+
+        function layout() {
+            var cards = activeCards();
+            cards.forEach(function (c, i) {
+                c.style.zIndex = String(50 - i);
+                if (i === 0) {
+                    c.classList.add('is-front');
+                    c.style.transform = '';
+                } else {
+                    c.classList.remove('is-front');
+                    c.classList.remove('is-choosing');
+                    c.style.transform = 'translateY(' + (i * 12) + 'px) scale(' + (1 - i * 0.045) + ')';
+                }
+                c.style.opacity = i < 3 ? '1' : '0';
+            });
+            if (countEl) countEl.textContent = String(cards.length);
+            if (cards.length === 0) finish();
+        }
+
+        function finish() {
+            if (doneEl) doneEl.hidden = false;
+            if (controls) controls.style.display = 'none';
+            if (progress) progress.style.display = 'none';
+        }
+
+        function save(topicId, interested, priority) {
+            var body = new URLSearchParams();
+            body.set('topicId', topicId);
+            body.set('isInterested', interested ? 'true' : 'false');
+            body.set('priority', String(priority));
+            body.set('__RequestVerificationToken', token);
+            return fetch('/Home/SaveInterest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            }).catch(function () { });
+        }
+
+        function flyOut(c, dir) {
+            busy = true;
+            c.classList.add('gone');
+            c.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+            c.style.transform = 'translateX(' + (dir * 540) + 'px) rotate(' + (dir * 18) + 'deg)';
+            c.style.opacity = '0';
+            setTimeout(function () { busy = false; layout(); }, 320);
+        }
+
+        function pass(c) {
+            if (!c) return;
+            save(c.dataset.topicId, false, 0);
+            flyOut(c, -1);
+        }
+
+        function like(c) {
+            if (!c) return;
+            c.style.transition = 'transform 0.3s ease';
+            c.style.transform = '';
+            c.classList.add('is-choosing');
+        }
+
+        function choose(c, priority) {
+            save(c.dataset.topicId, true, priority);
+            c.classList.remove('is-choosing');
+            flyOut(c, 1);
+        }
+
+        // drag
+        var dragging = false, startX = 0, startY = 0, dx = 0, dragCard = null;
+
+        deck.addEventListener('pointerdown', function (e) {
+            if (busy) return;
+            var f = front();
+            if (!f) return;
+            if (e.target.closest('.swipe-priority')) return;
+            if (f.classList.contains('is-choosing')) return;
+            dragCard = f;
+            dragging = true;
+            startX = e.clientX; startY = e.clientY; dx = 0;
+            dragCard.style.transition = 'none';
+        });
+
+        window.addEventListener('pointermove', function (e) {
+            if (!dragging || !dragCard) return;
+            dx = e.clientX - startX;
+            var dy = e.clientY - startY;
+            dragCard.style.transform = 'translate(' + dx + 'px,' + (dy * 0.25) + 'px) rotate(' + (dx * 0.05) + 'deg)';
+            var yes = dragCard.querySelector('.swipe-stamp-yes');
+            var no = dragCard.querySelector('.swipe-stamp-no');
+            if (yes) yes.style.opacity = dx > 0 ? Math.min(1, dx / THRESHOLD) : 0;
+            if (no) no.style.opacity = dx < 0 ? Math.min(1, -dx / THRESHOLD) : 0;
+        }, { passive: true });
+
+        function endDrag() {
+            if (!dragging || !dragCard) return;
+            dragging = false;
+            var c = dragCard; dragCard = null;
+            c.style.transition = 'transform 0.3s ease';
+            var yes = c.querySelector('.swipe-stamp-yes'); if (yes) yes.style.opacity = 0;
+            var no = c.querySelector('.swipe-stamp-no'); if (no) no.style.opacity = 0;
+            if (dx > THRESHOLD) { like(c); }
+            else if (dx < -THRESHOLD) { pass(c); }
+            else { c.style.transform = ''; }
+            dx = 0;
+        }
+        window.addEventListener('pointerup', endDrag);
+        window.addEventListener('pointercancel', endDrag);
+
+        deck.addEventListener('click', function (e) {
+            var btn = e.target.closest('.swipe-prio-btn');
+            if (!btn) return;
+            var c = btn.closest('.swipe-card');
+            if (!c || !c.classList.contains('is-choosing')) return;
+            choose(c, parseInt(btn.dataset.priority, 10) || 1);
+        });
+
+        if (btnYes) btnYes.addEventListener('click', function () { if (!busy) like(front()); });
+        if (btnNo) btnNo.addEventListener('click', function () { if (!busy) pass(front()); });
+
+        layout();
+    })();
+</script>
