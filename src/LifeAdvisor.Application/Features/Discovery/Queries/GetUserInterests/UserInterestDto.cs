@@ -1,6 +1,6 @@
 namespace LifeAdvisor.Application.Features.Discovery.Queries.GetUserInterests;
 
-public record UserInterestDto(int TopicId, string Title, string Description, string Category, string Emoji, int Priority)
+public record UserInterestDto(int TopicId, string Title, string Description, string Category, string Emoji, string ImageUrl, int Priority)
 {
     public string PriorityLabel => Priority switch
     {

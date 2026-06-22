@@ -14,6 +14,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
         builder.Property(t => t.Description).IsRequired().HasMaxLength(400);
         builder.Property(t => t.Category).IsRequired().HasMaxLength(60);
         builder.Property(t => t.Emoji).HasMaxLength(16);
+        builder.Property(t => t.ImageUrl).HasMaxLength(400);
         builder.Property(t => t.IsActive).HasDefaultValue(true);
         builder.Property(t => t.DisplayOrder).IsRequired();
 
@@ -26,6 +27,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
                 Title = "Technology & AI",
                 Category = "Tech",
                 Emoji = "🤖",
+                ImageUrl = "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=700&q=70",
                 DisplayOrder = 1,
                 IsActive = true,
                 Description = "Breakthroughs, new tools, and how AI is reshaping the way we live and work."
@@ -36,6 +38,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
                 Title = "Money & Investing",
                 Category = "Finance",
                 Emoji = "💸",
+                ImageUrl = "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=700&q=70",
                 DisplayOrder = 2,
                 IsActive = true,
                 Description = "Markets, saving strategies, and smart money moves that compound over time."
@@ -46,6 +49,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
                 Title = "Health & Longevity",
                 Category = "Wellbeing",
                 Emoji = "🌿",
+                ImageUrl = "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=700&q=70",
                 DisplayOrder = 3,
                 IsActive = true,
                 Description = "Fitness, nutrition, sleep, and the science of living a longer, better life."
@@ -56,6 +60,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
                 Title = "Science & Space",
                 Category = "Science",
                 Emoji = "🔭",
+                ImageUrl = "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=700&q=70",
                 DisplayOrder = 4,
                 IsActive = true,
                 Description = "Discoveries, the cosmos, and the ideas quietly rewriting what we know."
@@ -66,6 +71,7 @@ public class InterestTopicConfiguration : IEntityTypeConfiguration<InterestTopic
                 Title = "Career & Hustle",
                 Category = "Growth",
                 Emoji = "🚀",
+                ImageUrl = "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=700&q=70",
                 DisplayOrder = 5,
                 IsActive = true,
                 Description = "Work, startups, side projects, and growing into the next version of you."

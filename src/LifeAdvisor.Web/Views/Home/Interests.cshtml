@@ -36,7 +36,7 @@
                     @foreach (var interest in Model.Interests)
                     {
                         <article class="interest-row prio-@interest.Priority">
-                            <div class="interest-emoji">@interest.Emoji</div>
+                            <div class="interest-thumb" style="background-image: url('@interest.ImageUrl');"></div>
                             <div class="interest-main">
                                 <div class="interest-top">
                                     <span class="interest-title">@interest.Title</span>
@@ -64,7 +64,7 @@
                     @foreach (var interest in Model.Interests.Take(3))
                     {
                         <div class="updates-skeleton">
-                            <span class="updates-skeleton-emoji">@interest.Emoji</span>
+                            <span class="updates-skeleton-thumb" style="background-image: url('@interest.ImageUrl');"></span>
                             <div class="updates-skeleton-lines">
                                 <span class="updates-skeleton-line is-wide"></span>
                                 <span class="updates-skeleton-line"></span>
