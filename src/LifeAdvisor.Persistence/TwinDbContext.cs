@@ -16,6 +16,8 @@ public class TwinDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TwinLifeDomain> TwinLifeDomains => Set<TwinLifeDomain>();
     public DbSet<LifeStageOption> LifeStageOptions => Set<LifeStageOption>();
     public DbSet<LifeDomainOption> LifeDomainOptions => Set<LifeDomainOption>();
+    public DbSet<InterestTopic> InterestTopics => Set<InterestTopic>();
+    public DbSet<TwinInterest> TwinInterests => Set<TwinInterest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
