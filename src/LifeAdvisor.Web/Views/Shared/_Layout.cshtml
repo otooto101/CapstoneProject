@@ -4,11 +4,64 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] – LifeAdvisor</title>
+    <script>
+        // Apply the saved theme before paint so there's no flash of the wrong theme.
+        (function () {
+            try {
+                if (localStorage.getItem('la-theme') === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) { }
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     @RenderBody()
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global submit feedback: turn the clicked submit button into a spinner
+        // and block double-submits, so no page ever feels "frozen" after a click.
+        (function () {
+            document.addEventListener('submit', function (e) {
+                var form = e.target;
+                if (!(form instanceof HTMLFormElement) || form.hasAttribute('data-no-loading')) return;
+                if (form.dataset.submitting === '1') { e.preventDefault(); return; }
+                form.dataset.submitting = '1';
+                var btn = e.submitter || form.querySelector('button[type="submit"], input[type="submit"]');
+                if (btn && !btn.classList.contains('is-loading')) {
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    var text = btn.getAttribute('data-loading-text') || (btn.textContent || '').trim() || 'Working…';
+                    btn.classList.add('is-loading');
+                    btn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span><span class="btn-label">' + text + '</span>';
+                }
+            }, true);
+
+            // Restore buttons if the user returns via the back/forward cache.
+            window.addEventListener('pageshow', function (e) {
+                if (!e.persisted) return;
+                document.querySelectorAll('form[data-submitting="1"]').forEach(function (f) { f.removeAttribute('data-submitting'); });
+                document.querySelectorAll('.is-loading[data-original-html]').forEach(function (b) {
+                    b.innerHTML = b.dataset.originalHtml;
+                    b.classList.remove('is-loading');
+                });
+            });
+        })();
+    </script>
+    <script>
+        // Theme toggle: any [data-theme-toggle] control flips light/dark and remembers it.
+        document.addEventListener('click', function (e) {
+            var t = e.target.closest('[data-theme-toggle]');
+            if (!t) return;
+            var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) { document.documentElement.removeAttribute('data-theme'); }
+            else { document.documentElement.setAttribute('data-theme', 'light'); }
+            try { localStorage.setItem('la-theme', isLight ? 'dark' : 'light'); } catch (e) { }
+        });
+    </script>
 </body>
 </html>

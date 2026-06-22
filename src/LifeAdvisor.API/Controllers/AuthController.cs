@@ -28,8 +28,8 @@ public class AuthController(ISender sender) : ControllerBase
     {
         try
         {
-            var token = await sender.Send(command, ct);
-            return Ok(new { Token = token });
+            var result = await sender.Send(command, ct);
+            return Ok(new { Token = result.Token, UserId = result.UserId, Email = result.Email });
         }
         catch (UnauthorizedAccessException ex)
         {

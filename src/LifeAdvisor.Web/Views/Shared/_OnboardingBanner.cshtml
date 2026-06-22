@@ -1,0 +1,11 @@
+@model LifeAdvisor.Web.Models.DashboardShellViewModel
+@if (!Model.IsOnboardingCompleted)
+{
+    <div class="onboarding-banner">
+        <div>
+            <div class="onboarding-banner-title">Complete your onboarding</div>
+            <div class="onboarding-banner-text">Your Digital Twin needs your profile details before it can start learning from your decisions.</div>
+        </div>
+        <a href="/Auth/Onboarding" class="dashboard-primary-cta">Finish onboarding</a>
+    </div>
+}

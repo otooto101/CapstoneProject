@@ -27,6 +27,8 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDigitalTwinRepository, DigitalTwinRepository>();
+        services.AddScoped<ILifeStageOptionRepository, LifeStageOptionRepository>();
+        services.AddScoped<ITwinNarrativeRepository, TwinNarrativeRepository>();
 
         return services;
     }

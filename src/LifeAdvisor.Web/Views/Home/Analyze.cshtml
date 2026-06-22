@@ -1,0 +1,145 @@
+@model LifeAdvisor.Web.Models.AnalyzeDecisionViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Analyze";
+}
+
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <partial name="_DashboardSidebar" model="Model" />
+    </aside>
+
+    <main class="dashboard-main">
+        <partial name="_OnboardingBanner" model="Model" />
+
+        <section class="dashboard-hero-card">
+            <span class="dashboard-eyebrow">Analyze</span>
+            <h1 class="dashboard-title">What's weighing on you?</h1>
+            <p class="dashboard-subtitle">Any decision. Your twin doesn't judge.</p>
+        </section>
+
+        <section class="dashboard-info-card">
+            <div class="dashboard-info-heading">Analyze with My Twin</div>
+            <p class="dashboard-info-text analyze-helper-text">e.g., Should I move cities? End this friendship? Go back to school? Give your twin the full picture — what's happening, who's involved, what triggered this... What are you afraid of? What would you do if no one was watching?</p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="auth-error mt-3">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            <form method="post" asp-controller="Home" asp-action="Analyze" class="analyze-form" id="analyze-form">
+                @Html.AntiForgeryToken()
+                <div class="auth-field">
+                    <label asp-for="Prompt"></label>
+                    <textarea asp-for="Prompt" class="analyze-textarea" rows="8" placeholder="Tell your twin what decision you are facing..."></textarea>
+                    <span asp-validation-for="Prompt" class="validation-message"></span>
+                </div>
+
+                <div class="analyze-form-actions">
+                    <button type="submit" class="dashboard-primary-cta" id="analyze-submit" data-loading-text="Analyzing your situation…">Analyze with My Twin</button>
+                    <span class="analyze-pending" id="analyze-pending" hidden>Your twin is thinking this through — this can take a few seconds…</span>
+                </div>
+            </form>
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Guidance))
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Twin Guidance</div>
+                @if (!string.IsNullOrWhiteSpace(Model.HistoryAcknowledgement))
+                {
+                    <div class="analysis-history-note">@Model.HistoryAcknowledgement</div>
+                }
+                <div class="analysis-guidance-shell">
+                    <div class="analysis-guidance-lead">A deeper reflection from your twin based on your situation, emotions, and likely next paths.</div>
+                    <div class="analysis-guidance">@Model.Guidance</div>
+                </div>
+            </section>
+        }
+
+        @if (Model.ScenarioOptions.Count > 0)
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Scenario Comparison</div>
+                <p class="dashboard-info-text">Choose one next step. When you decide, this decision becomes completed in your history.</p>
+
+                <form method="post" asp-controller="Home" asp-action="CompleteDecision" class="scenario-selection-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="DecisionHistoryId" />
+                    <input type="hidden" asp-for="Prompt" />
+                    <input type="hidden" asp-for="Guidance" />
+                    <input type="hidden" asp-for="HistoryAcknowledgement" />
+
+                    <div class="scenario-grid">
+                        @for (var i = 0; i < Model.ScenarioOptions.Count; i++)
+                        {
+                            var scenario = Model.ScenarioOptions[i];
+                            <label class="scenario-card">
+                                <input type="radio" asp-for="SelectedScenarioTitle" value="@scenario.Title" />
+                                <div class="scenario-card-top">
+                                    <div>
+                                        <span class="scenario-title">@scenario.Title</span>
+                                        <span class="scenario-score-label">Recommended path score</span>
+                                    </div>
+                                    <div class="scenario-score-badge">
+                                        <span class="scenario-score">@scenario.Score</span>
+                                        <span class="scenario-score-label">/100</span>
+                                    </div>
+                                </div>
+
+                                <span class="scenario-summary">@scenario.Summary</span>
+
+                                <div class="scenario-detail-list">
+                                    <div class="scenario-detail-item">
+                                        <span class="scenario-detail-label">Best when</span>
+                                        <span class="scenario-detail-text">@scenario.BestWhen</span>
+                                    </div>
+                                    <div class="scenario-detail-item">
+                                        <span class="scenario-detail-label">Main risk</span>
+                                        <span class="scenario-detail-text">@scenario.MainRisk</span>
+                                    </div>
+                                    <div class="scenario-detail-item">
+                                        <span class="scenario-detail-label">First step</span>
+                                        <span class="scenario-detail-text">@scenario.FirstStep</span>
+                                    </div>
+                                </div>
+                            </label>
+                        }
+                    </div>
+
+                    <button type="submit" class="dashboard-primary-cta">Complete decision</button>
+                </form>
+            </section>
+        }
+
+        @if (Model.RelatedDecisions.Count > 0)
+        {
+            <section class="dashboard-info-card">
+                <div class="dashboard-info-heading">Related decision history</div>
+                <p class="dashboard-info-text">Using up to @Model.ConsideredDecisionCount related decisions above similarity threshold @Model.SimilarityThreshold.ToString("0.00").</p>
+                <div class="related-decision-list">
+                    @foreach (var match in Model.RelatedDecisions)
+                    {
+                        <article class="related-decision-card">
+                            <div class="related-decision-meta">@match.Type · similarity @match.SimilarityScore.ToString("0.00")</div>
+                            <div class="related-decision-content">@match.Content</div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+</div>
+
+<script>
+    (() => {
+        const form = document.getElementById('analyze-form');
+        const pending = document.getElementById('analyze-pending');
+        if (!form || !pending) return;
+        // The global submit handler shows the button spinner; here we just
+        // reveal the reassurance note for the longer AI wait.
+        form.addEventListener('submit', () => { pending.hidden = false; });
+    })();
+</script>

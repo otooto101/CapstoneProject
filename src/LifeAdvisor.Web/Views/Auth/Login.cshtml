@@ -5,15 +5,27 @@
 }
 
 <div class="auth-wrapper">
+    <div class="auth-watermark"></div>
     <div class="auth-card">
 
-        <div class="auth-logo">
-            <span class="auth-logo-icon">✦</span>
-            <span class="auth-logo-text">Digital Twin</span>
-        </div>
+        <div class="auth-header-block">
+            <div class="auth-logo auth-logo--stacked">
+                <img src="/images/logo.png" alt="LifeAdvisor Logo" class="auth-logo-img" />
+                <div class="brand-lockup">
+                    <span class="brand-text">LifeAdvisor</span>
+                    <span class="brand-tagline">digital twin guidance</span>
+                </div>
+            </div>
 
-        <h2 class="auth-title">Welcome back</h2>
-        <p class="auth-subtitle">Sign in to your account</p>
+            <div class="auth-header-divider">
+                <span></span>
+            </div>
+
+            <div class="auth-heading-group">
+                <h2 class="auth-title">Welcome back</h2>
+                <p class="auth-subtitle">Sign in to your account</p>
+            </div>
+        </div>
 
         @if (!ViewData.ModelState.IsValid)
         {
@@ -40,7 +52,7 @@
                 <span asp-validation-for="Password" class="validation-message"></span>
             </div>
 
-            <button type="submit" class="auth-btn">Sign in</button>
+            <button type="submit" class="auth-btn" data-loading-text="Signing you in…">Sign in</button>
         </form>
 
         <p class="auth-switch">
@@ -48,6 +60,8 @@
         </p>
     </div>
 </div>
+
+<partial name="_BrainBuddy" />
 
 <script>
     function togglePassword() {

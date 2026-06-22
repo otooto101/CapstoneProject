@@ -1,0 +1,85 @@
+@model LifeAdvisor.Web.Models.OnboardingViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Complete your profile";
+}
+
+<div class="auth-wrapper">
+    <div class="auth-watermark"></div>
+    <div class="auth-card auth-card--wide">
+
+        <div class="auth-header-block">
+            <div class="auth-logo auth-logo--stacked">
+                <img src="/images/logo.png" alt="LifeAdvisor Logo" class="auth-logo-img" />
+                <div class="brand-lockup">
+                    <span class="brand-text">LifeAdvisor</span>
+                    <span class="brand-tagline">digital twin guidance</span>
+                </div>
+            </div>
+
+            <div class="auth-header-divider">
+                <span></span>
+            </div>
+
+            <div class="auth-heading-group">
+                <h2 class="auth-title">Let's set up your twin</h2>
+                <p class="auth-subtitle">A few basics so your twin understands your world. This stays private.</p>
+            </div>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="auth-error">
+                @Html.ValidationSummary(false)
+            </div>
+        }
+
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="auth-field">
+                <label asp-for="PreferredName"></label>
+                <input asp-for="PreferredName" class="auth-input" placeholder="How should we call you?" />
+                <span asp-validation-for="PreferredName" class="validation-message"></span>
+            </div>
+
+            <div class="auth-field">
+                <label asp-for="DateOfBirth"></label>
+                <input asp-for="DateOfBirth" class="auth-input" type="date" />
+                <span asp-validation-for="DateOfBirth" class="validation-message"></span>
+            </div>
+
+            <div class="field-row">
+                <div class="auth-field">
+                    <label asp-for="City"></label>
+                    <input asp-for="City" class="auth-input" placeholder="City" />
+                    <span asp-validation-for="City" class="validation-message"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Country"></label>
+                    <input asp-for="Country" class="auth-input" placeholder="Country" />
+                    <span asp-validation-for="Country" class="validation-message"></span>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label class="onboarding-group-label">Where are you in life right now?</label>
+                <div class="lifestage-grid">
+                    @foreach (var option in Model.LifeStageOptions)
+                    {
+                        <label class="lifestage-card">
+                            <input class="lifestage-input" type="radio" name="LifeStageOptionId" value="@option.Value"
+                                   checked="@(option.Value == Model.LifeStageOptionId.ToString())" />
+                            <span class="lifestage-check" aria-hidden="true"></span>
+                            <span class="lifestage-name">@option.Text</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="LifeStageOptionId" class="validation-message"></span>
+            </div>
+
+            <button type="submit" class="auth-btn" data-loading-text="Building your twin…">Finish onboarding</button>
+        </form>
+    </div>
+</div>

@@ -252,7 +252,7 @@ namespace LifeAdvisor.Persistence.Migrations
                     DigitalTwinId = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Embedding = table.Column<SqlVector<float>>(type: "vector(1536)", nullable: true),
+                    Embedding = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },

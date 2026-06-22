@@ -19,7 +19,7 @@ namespace LifeAdvisor.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -130,6 +130,64 @@ namespace LifeAdvisor.Persistence.Migrations
                     b.HasKey("LifeStageOptionId");
 
                     b.ToTable("LifeStageOptions");
+
+                    b.HasData(
+                        new
+                        {
+                            LifeStageOptionId = 1,
+                            DisplayOrder = 1,
+                            IsActive = true,
+                            Name = "Student / Early Career"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 2,
+                            DisplayOrder = 2,
+                            IsActive = true,
+                            Name = "Building Career"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 3,
+                            DisplayOrder = 3,
+                            IsActive = true,
+                            Name = "Settling Down / Starting Family"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 4,
+                            DisplayOrder = 4,
+                            IsActive = true,
+                            Name = "Parenting / Raising Children"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 5,
+                            DisplayOrder = 5,
+                            IsActive = true,
+                            Name = "Career Transition / Reinvention"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 6,
+                            DisplayOrder = 6,
+                            IsActive = true,
+                            Name = "Midlife Growth / Reflection"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 7,
+                            DisplayOrder = 7,
+                            IsActive = true,
+                            Name = "Pre-Retirement Planning"
+                        },
+                        new
+                        {
+                            LifeStageOptionId = 8,
+                            DisplayOrder = 8,
+                            IsActive = true,
+                            Name = "Retirement / Later Life"
+                        });
                 });
 
             modelBuilder.Entity("LifeAdvisor.Domain.Entities.TwinLifeDomain", b =>
@@ -177,11 +235,30 @@ namespace LifeAdvisor.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<string>("DecisionTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<int>("DigitalTwinId")
                         .HasColumnType("int");
 
-                    b.Property<SqlVector<float>?>("Embedding")
-                        .HasColumnType("vector(1536)");
+                    b.Property<float[]>("Embedding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCompletedDecision")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDecision")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ScenarioOptionsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedScenarioTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -224,6 +301,9 @@ namespace LifeAdvisor.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("MaxRelatedDecisions")
+                        .HasColumnType("int");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -253,6 +333,9 @@ namespace LifeAdvisor.Persistence.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("SimilarityThreshold")
+                        .HasColumnType("float");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");

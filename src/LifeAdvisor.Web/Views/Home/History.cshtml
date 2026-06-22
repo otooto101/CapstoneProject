@@ -1,0 +1,142 @@
+@model LifeAdvisor.Web.Models.DecisionHistoryViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "History";
+}
+
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <partial name="_DashboardSidebar" model="Model" />
+    </aside>
+
+    <main class="dashboard-main">
+        <partial name="_OnboardingBanner" model="Model" />
+
+        <section class="dashboard-hero-card">
+            <span class="dashboard-eyebrow">History</span>
+            <h1 class="dashboard-title">Decision history</h1>
+            <p class="dashboard-subtitle">See which decisions are completed and which are still non-complete.</p>
+        </section>
+
+        @if (TempData["DecisionCompleted"] is string completedMessage)
+        {
+            <section class="dashboard-info-card">
+                <div class="settings-success">@completedMessage</div>
+            </section>
+        }
+
+        @if (TempData["DecisionHistoryError"] is string historyError)
+        {
+            <section class="dashboard-info-card">
+                <div class="auth-error">@historyError</div>
+            </section>
+        }
+
+        <section class="dashboard-info-card">
+            <div class="dashboard-info-heading">Your decisions</div>
+
+            @if (Model.Items.Count == 0)
+            {
+                <p class="dashboard-info-text">No decisions yet. Analyze a decision first.</p>
+            }
+            else
+            {
+                <div class="decision-history-list">
+                    @foreach (var item in Model.Items)
+                    {
+                        <article class="decision-history-card">
+                            <div class="decision-history-header">
+                                <div>
+                                    <div class="decision-history-title">@item.Title</div>
+                                    <div class="decision-history-date">@item.CreatedAt.ToLocalTime().ToString("g")</div>
+                                </div>
+                                <span class="decision-history-status @(item.IsCompleted ? "is-completed" : "is-pending")">@item.StatusLabel</span>
+                            </div>
+
+                            <div class="decision-history-prompt">@item.Prompt</div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.SelectedScenarioTitle))
+                            {
+                                <div class="decision-history-selection">
+                                    <span class="decision-history-selection-label">Chosen path</span>
+                                    <strong>@item.SelectedScenarioTitle</strong>
+                                </div>
+                            }
+
+                            @if (item.ScenarioOptions.Count > 0)
+                            {
+                                <div class="decision-history-scenarios">
+                                    @foreach (var scenario in item.ScenarioOptions)
+                                    {
+                                        var isSelected = string.Equals(item.SelectedScenarioTitle, scenario.Title, StringComparison.Ordinal);
+                                        <div class="decision-history-scenario @(isSelected ? "is-selected" : string.Empty)">
+                                            <div class="decision-history-scenario-top">
+                                                <div>
+                                                    <div class="decision-history-scenario-title">@scenario.Title</div>
+                                                    <div class="decision-history-scenario-summary">@scenario.Summary</div>
+                                                </div>
+                                                <div class="decision-history-score-badge">@scenario.Score/100</div>
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(scenario.BestWhen) || !string.IsNullOrWhiteSpace(scenario.MainRisk) || !string.IsNullOrWhiteSpace(scenario.FirstStep))
+                                            {
+                                                <div class="decision-history-scenario-details">
+                                                    @if (!string.IsNullOrWhiteSpace(scenario.BestWhen))
+                                                    {
+                                                        <div class="decision-history-detail">
+                                                            <span class="decision-history-detail-label">Best when</span>
+                                                            <span class="decision-history-detail-text">@scenario.BestWhen</span>
+                                                        </div>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(scenario.MainRisk))
+                                                    {
+                                                        <div class="decision-history-detail">
+                                                            <span class="decision-history-detail-label">Main risk</span>
+                                                            <span class="decision-history-detail-text">@scenario.MainRisk</span>
+                                                        </div>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(scenario.FirstStep))
+                                                    {
+                                                        <div class="decision-history-detail">
+                                                            <span class="decision-history-detail-label">First step</span>
+                                                            <span class="decision-history-detail-text">@scenario.FirstStep</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (!item.IsCompleted)
+                                {
+                                    <form method="post" asp-controller="Home" asp-action="CompleteDecisionFromHistory" class="decision-history-complete-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="decisionHistoryId" value="@item.TwinNarrativeId" />
+
+                                        <div class="decision-history-select-label">Choose decision</div>
+                                        <div class="decision-history-choice-grid">
+                                            @foreach (var scenario in item.ScenarioOptions)
+                                            {
+                                                <label class="decision-history-choice-card">
+                                                    <input type="radio" name="selectedScenarioTitle" value="@scenario.Title" class="decision-history-choice-input" />
+                                                    <span class="decision-history-choice-check">✓</span>
+                                                    <span class="decision-history-choice-title">@scenario.Title</span>
+                                                    <span class="decision-history-choice-score">@scenario.Score/100</span>
+                                                </label>
+                                            }
+                                        </div>
+
+                                        <button type="submit" class="dashboard-primary-cta">Mark as complete</button>
+                                    </form>
+                                }
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </main>
+</div>
