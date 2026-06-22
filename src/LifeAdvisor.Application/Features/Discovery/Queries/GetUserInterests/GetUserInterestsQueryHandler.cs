@@ -17,6 +17,7 @@ public class GetUserInterestsQueryHandler(ITwinInterestRepository twinInterestRe
                 interest.Topic.Description,
                 interest.Topic.Category,
                 interest.Topic.Emoji,
+                interest.Topic.ImageUrl,
                 interest.Priority))
             .ToList();
     }

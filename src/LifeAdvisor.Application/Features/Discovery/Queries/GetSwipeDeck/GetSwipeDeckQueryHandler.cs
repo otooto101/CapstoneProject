@@ -16,7 +16,8 @@ public class GetSwipeDeckQueryHandler(IInterestTopicRepository interestTopicRepo
                 topic.Title,
                 topic.Description,
                 topic.Category,
-                topic.Emoji))
+                topic.Emoji,
+                topic.ImageUrl))
             .ToList();
     }
 }
