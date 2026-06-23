@@ -941,6 +941,9 @@ html, body {
 }
 
 .dashboard-primary-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     align-self: flex-start;
     text-decoration: none;
     color: var(--bg);
@@ -1334,6 +1337,222 @@ html, body {
 .decision-history-choice-card:has(.decision-history-choice-input:checked) {
     border-color: var(--accent-line);
     background: var(--accent-soft);
+}
+
+/* Decision history: toolbar (search + filters) */
+.decision-history-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.decision-history-search {
+    display: flex;
+    gap: 0.6rem;
+    flex: 1 1 320px;
+}
+
+.decision-history-search-input {
+    flex: 1 1 auto;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.decision-history-search-input:focus {
+    outline: none;
+    border-color: var(--accent-line);
+}
+
+.decision-history-search-btn {
+    white-space: nowrap;
+}
+
+.decision-history-filters {
+    display: inline-flex;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.decision-history-filter {
+    padding: 0.5rem 0.95rem;
+    border-radius: 9px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.18s ease, background 0.18s ease;
+}
+
+.decision-history-filter:hover {
+    color: var(--text);
+}
+
+.decision-history-filter.is-active {
+    color: var(--bg);
+    background: var(--accent);
+}
+
+.decision-history-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.decision-history-count {
+    color: var(--text-2);
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.decision-history-card-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.decision-history-details-btn {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font: inherit;
+}
+
+/* Decision history: details modal */
+body.decision-modal-open {
+    overflow: hidden;
+}
+
+.decision-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.decision-modal[hidden] {
+    display: none;
+}
+
+.decision-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(2px);
+}
+
+.decision-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(720px, 100%);
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
+}
+
+.decision-modal-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.4rem 1.6rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+}
+
+.decision-modal-title {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    color: var(--text);
+}
+
+.decision-modal-close {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text-2);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.decision-modal-close:hover {
+    color: var(--text);
+    border-color: var(--accent-line);
+}
+
+.decision-modal-body {
+    padding: 1.4rem 1.6rem 1.7rem;
+    display: grid;
+    gap: 1.3rem;
+}
+
+.decision-modal-section {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.decision-modal-prompt {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+}
+
+/* Decision history: pagination */
+.decision-history-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 1.6rem;
+}
+
+.decision-history-page-link {
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.decision-history-page-link:hover {
+    border-color: var(--accent-line);
+}
+
+.decision-history-page-link.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.decision-history-page-status {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .dashboard-secondary-link {

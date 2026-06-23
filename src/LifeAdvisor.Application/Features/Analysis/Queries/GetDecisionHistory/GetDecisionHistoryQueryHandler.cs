@@ -6,22 +6,36 @@ using MediatR;
 namespace LifeAdvisor.Application.Features.Analysis.Queries.GetDecisionHistory;
 
 public class GetDecisionHistoryQueryHandler(ITwinNarrativeRepository twinNarrativeRepository)
-    : IRequestHandler<GetDecisionHistoryQuery, IReadOnlyList<DecisionHistoryItem>>
+    : IRequestHandler<GetDecisionHistoryQuery, DecisionHistoryPage>
 {
-    public async Task<IReadOnlyList<DecisionHistoryItem>> Handle(GetDecisionHistoryQuery request, CancellationToken ct)
+    public async Task<DecisionHistoryPage> Handle(GetDecisionHistoryQuery request, CancellationToken ct)
     {
-        var history = await twinNarrativeRepository.ListDecisionHistoryAsync(request.IdentityUserId, ct);
+        var (rows, totalCount) = await twinNarrativeRepository.SearchDecisionHistoryAsync(
+            request.IdentityUserId,
+            request.Search,
+            request.IsCompleted,
+            request.Page,
+            request.PageSize,
+            ct);
 
-        return history.Select(item => new DecisionHistoryItem
+        var items = rows.Select(row => new DecisionHistoryItem
         {
-            TwinNarrativeId = item.TwinNarrativeId,
-            Title = string.IsNullOrWhiteSpace(item.DecisionTitle) ? item.Content : item.DecisionTitle,
-            Prompt = item.Content,
-            IsCompleted = item.IsCompletedDecision,
-            SelectedScenarioTitle = item.SelectedScenarioTitle,
-            ScenarioOptions = DeserializeOptions(item.ScenarioOptionsJson),
-            CreatedAt = item.CreatedAt
+            TwinNarrativeId = row.TwinNarrativeId,
+            Title = string.IsNullOrWhiteSpace(row.DecisionTitle) ? row.Content : row.DecisionTitle,
+            Prompt = row.Content,
+            IsCompleted = row.IsCompletedDecision,
+            SelectedScenarioTitle = row.SelectedScenarioTitle,
+            ScenarioOptions = DeserializeOptions(row.ScenarioOptionsJson),
+            CreatedAt = row.CreatedAt
         }).ToList();
+
+        return new DecisionHistoryPage
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = request.Page < 1 ? 1 : request.Page,
+            PageSize = request.PageSize < 1 ? 10 : request.PageSize
+        };
     }
 
     private static IReadOnlyList<DecisionScenarioOption> DeserializeOptions(string json)

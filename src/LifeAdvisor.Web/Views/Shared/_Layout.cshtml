@@ -63,5 +63,6 @@
             try { localStorage.setItem('la-theme', isLight ? 'dark' : 'light'); } catch (e) { }
         });
     </script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

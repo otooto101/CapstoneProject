@@ -6,6 +6,7 @@ using LifeAdvisor.Application.Models;
 using LifeAdvisor.Domain.Entities;
 using LifeAdvisor.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace LifeAdvisor.Infrastructure.Services;
@@ -17,7 +18,8 @@ public class SemanticKernelDecisionAnalysisService(
     ITwinNarrativeRepository twinNarrativeRepository,
     IDigitalTwinRepository digitalTwinRepository,
     IUnitOfWork unitOfWork,
-    SemanticKernelFactory semanticKernelFactory) : IDecisionAnalysisService
+    SemanticKernelFactory semanticKernelFactory,
+    ILogger<SemanticKernelDecisionAnalysisService> logger) : IDecisionAnalysisService
 {
     public async Task<DecisionAnalysisResult> AnalyzeAsync(string identityUserId, string prompt, CancellationToken ct = default)
     {
@@ -73,7 +75,7 @@ public class SemanticKernelDecisionAnalysisService(
                 cancellationToken: ct);
 
             var parsedResponse = ParseResponse(response.Content ?? string.Empty, prompt);
-            var decisionRecord = await SavePendingDecisionAsync(identityUserId, prompt, parsedResponse.Scenarios, ct);
+            var decisionRecord = await SavePendingDecisionAsync(identityUserId, prompt, queryEmbedding, parsedResponse.Scenarios, ct);
 
             return new DecisionAnalysisResult
             {
@@ -89,6 +91,7 @@ public class SemanticKernelDecisionAnalysisService(
         }
         catch (Exception ex) when (ex is not InvalidOperationException)
         {
+            logger.LogError(ex, "Decision analysis failed for user {UserId}. Underlying error: {ErrorMessage}", identityUserId, ex.Message);
             throw new InvalidOperationException("The AI analysis service is currently unavailable. Check your Gemini model configuration and try again.", ex);
         }
     }
@@ -135,6 +138,7 @@ public class SemanticKernelDecisionAnalysisService(
     private async Task<TwinNarrative> SavePendingDecisionAsync(
         string identityUserId,
         string prompt,
+        ReadOnlyMemory<float> promptEmbedding,
         IReadOnlyList<DecisionScenarioOption> scenarios,
         CancellationToken ct)
     {
@@ -146,6 +150,7 @@ public class SemanticKernelDecisionAnalysisService(
             DigitalTwinId = twin.DigitalTwinId,
             Type = NarrativeType.CurrentStruggles,
             Content = prompt.Trim(),
+            Embedding = promptEmbedding.IsEmpty ? null : promptEmbedding.ToArray(),
             IsDecision = true,
             IsCompletedDecision = false,
             DecisionTitle = BuildDecisionTitle(prompt),
