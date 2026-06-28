@@ -16,12 +16,13 @@ public class DailyBriefingService(
     ITwinInterestRepository twinInterestRepository,
     IDailyBriefingRepository dailyBriefingRepository,
     INewsService newsService,
+    GoogleNewsRssService worldNewsService,
     IUnitOfWork unitOfWork,
     SemanticKernelFactory semanticKernelFactory) : IDailyBriefingService
 {
     private const int MaxItems = 6;
+    private const int WorldSlots = 2;
     private const int MaxSearchTerms = 4;
-    private const int MaxFetch = 10;
     private const string GeneralTag = "Stay informed";
     private const string EssentialNewsQuery = "world OR politics OR economy OR election OR conflict";
 
@@ -60,26 +61,25 @@ public class DailyBriefingService(
     {
         var interests = await twinInterestRepository.ListInterestedByUserAsync(twin.IdentityUserId, ct);
 
-        // A SINGLE news request per briefing (one call is far friendlier to free-tier rate
-        // limits): the user's interests plus an essential world/politics slice so they stay
-        // connected to the world, not just their bubble.
+        // Personalized stories come from the primary source — GNews (with photos) when a key is
+        // set — and cost a single request. World/politics awareness comes from keyless Google
+        // News RSS, which has no key, no quota, and no rate-limit cost, so we never spend the
+        // photo-API budget just to keep them connected to the world.
         var interestQuery = BuildSearchQuery(interests);
-        var query = string.IsNullOrEmpty(interestQuery)
-            ? EssentialNewsQuery
-            : $"{interestQuery} OR {EssentialNewsQuery}";
+        var interestArticles = string.IsNullOrEmpty(interestQuery)
+            ? new List<Application.Models.NewsArticle>()
+            : (await newsService.SearchAsync(interestQuery, MaxItems, ct)).ToList();
 
-        var pool = await newsService.SearchAsync(query, MaxFetch, ct);
+        var worldArticles = (await worldNewsService.SearchAsync(EssentialNewsQuery, WorldSlots + 2, ct)).ToList();
+
+        // Interests lead (they're the point); the world slice fills reserved spots; then we
+        // backfill with any remaining interest stories. Deduped by URL.
+        var articles = BuildArticleMix(interestArticles, worldArticles);
 
         // No real news available (no key, no interests, or a provider hiccup): hand back a
         // tasteful, un-persisted briefing so the page renders and we retry next time.
-        if (pool.Count == 0)
+        if (articles.Count == 0)
             return BuildFallbackBriefing(twin, interests);
-
-        // Lead with stories that hit the user's interests, then fill with the world slice.
-        var articles = pool
-            .OrderByDescending(article => MatchInterest(article.Title, interests) != GeneralTag)
-            .Take(MaxItems)
-            .ToList();
 
         var synthesis = await SynthesizeWithTwinAsync(twin, interests, articles, ct);
 
@@ -112,6 +112,32 @@ public class DailyBriefingService(
         await dailyBriefingRepository.AddAsync(briefing, ct);
         await unitOfWork.SaveChangesAsync(ct);
         return briefing;
+    }
+
+    // Interests first (up to MaxItems - WorldSlots), then the world slice fills reserved spots,
+    // then any leftover interest stories backfill. Deduped by URL, capped at MaxItems.
+    private static List<Application.Models.NewsArticle> BuildArticleMix(
+        IReadOnlyList<Application.Models.NewsArticle> interestArticles,
+        IReadOnlyList<Application.Models.NewsArticle> worldArticles)
+    {
+        var picked = new List<Application.Models.NewsArticle>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        void Take(IEnumerable<Application.Models.NewsArticle> source, int upTo)
+        {
+            foreach (var article in source)
+            {
+                if (picked.Count >= upTo)
+                    break;
+                if (!string.IsNullOrWhiteSpace(article.Url) && seen.Add(article.Url))
+                    picked.Add(article);
+            }
+        }
+
+        Take(interestArticles, MaxItems - WorldSlots);
+        Take(worldArticles, MaxItems);
+        Take(interestArticles, MaxItems);
+        return picked;
     }
 
     // One combined OR-query from the user's top interests, so a generation costs a single

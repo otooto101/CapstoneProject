@@ -55,11 +55,16 @@
             <section class="dashboard-info-card updates-card">
                 <span class="dashboard-eyebrow">Your updates</span>
                 <div class="dashboard-info-heading">Latest on your interests</div>
-                @if (Model.Briefing is not null && Model.Briefing.Items.Count > 0)
+                @{
+                    var interestUpdates = Model.Briefing?.Items
+                        .Where(i => !string.Equals(i.MatchedInterest, "Stay informed", StringComparison.OrdinalIgnoreCase))
+                        .ToList() ?? new();
+                }
+                @if (interestUpdates.Count > 0)
                 {
                     <p class="dashboard-info-text">Real stories your twin pulled for you today — no noise, just what ties to what you care about.</p>
                     <div class="updates-feed">
-                        @foreach (var item in Model.Briefing.Items)
+                        @foreach (var item in interestUpdates)
                         {
                             <a class="update-row" href="@item.Url" target="_blank" rel="noopener noreferrer">
                                 <span class="update-tag">@item.MatchedInterest</span>
