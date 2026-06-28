@@ -54,25 +54,29 @@
 
             <section class="dashboard-info-card updates-card">
                 <span class="dashboard-eyebrow">Your updates</span>
-                <div class="dashboard-info-heading">Personalised updates are on the way</div>
-                <p class="dashboard-info-text">
-                    Soon, the latest on your top interests will show up here as a feed — and the important ones will reach you
-                    as notifications. No noise, just the stuff you told us you actually care about. For now your twin is
-                    busy learning what matters most to you.
-                </p>
-                <div class="updates-placeholder">
-                    @foreach (var interest in Model.Interests.Take(3))
-                    {
-                        <div class="updates-skeleton">
-                            <span class="updates-skeleton-thumb" style="background-image: url('@interest.ImageUrl');"></span>
-                            <div class="updates-skeleton-lines">
-                                <span class="updates-skeleton-line is-wide"></span>
-                                <span class="updates-skeleton-line"></span>
-                            </div>
-                            <span class="updates-skeleton-tag">@interest.Title</span>
-                        </div>
-                    }
-                </div>
+                <div class="dashboard-info-heading">Latest on your interests</div>
+                @if (Model.Briefing is not null && Model.Briefing.Items.Count > 0)
+                {
+                    <p class="dashboard-info-text">Real stories your twin pulled for you today — no noise, just what ties to what you care about.</p>
+                    <div class="updates-feed">
+                        @foreach (var item in Model.Briefing.Items)
+                        {
+                            <a class="update-row" href="@item.Url" target="_blank" rel="noopener noreferrer">
+                                <span class="update-tag">@item.MatchedInterest</span>
+                                <span class="update-headline">@item.Headline</span>
+                                <span class="update-meta">
+                                    @item.SourceName@(item.PublishedAt.HasValue ? $" · {item.PublishedAt.Value.ToLocalTime():MMM d}" : string.Empty)
+                                </span>
+                            </a>
+                        }
+                    </div>
+                    <a href="/Home" class="dashboard-secondary-link">See your full briefing →</a>
+                }
+                else
+                {
+                    <p class="dashboard-info-text">No updates right now — your twin pulls fresh stories on your interests each day. Open your dashboard to generate today's.</p>
+                    <a href="/Home" class="dashboard-secondary-link">Open your briefing →</a>
+                }
             </section>
         }
     </main>

@@ -147,6 +147,18 @@ public class HomeController(ISender sender) : Controller
         var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId)!;
         model.Interests = await sender.Send(new GetUserInterestsQuery(userId), ct);
 
+        if (model.IsOnboardingCompleted)
+        {
+            try
+            {
+                model.Briefing = await sender.Send(new GetDailyBriefingQuery(userId), ct);
+            }
+            catch
+            {
+                model.Briefing = null;
+            }
+        }
+
         return View(model);
     }
 

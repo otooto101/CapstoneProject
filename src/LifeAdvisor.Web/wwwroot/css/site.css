@@ -3038,6 +3038,74 @@ html {
     50% { background-position: 100% 0; }
 }
 
+/* Real "Your updates" feed on My Interests (replaces the old skeleton placeholder). */
+.updates-feed {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.update-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface-3);
+    text-decoration: none;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.update-row:hover {
+    border-color: var(--accent-line);
+    transform: translateX(2px);
+}
+
+.update-tag {
+    flex-shrink: 0;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    color: var(--accent);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.update-headline {
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.35;
+    min-width: 0;
+}
+
+.update-meta {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 620px) {
+    .update-row {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+    }
+
+    .update-tag,
+    .update-meta {
+        justify-self: start;
+    }
+}
+
 @media (max-width: 560px) {
     .swipe-deck {
         max-width: 100%;
