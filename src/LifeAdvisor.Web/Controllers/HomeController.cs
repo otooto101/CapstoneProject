@@ -3,10 +3,15 @@ using LifeAdvisor.Application.Features.Analysis.Commands.CompleteDecision;
 using LifeAdvisor.Application.Features.Analysis.Commands.UpdateAnalysisSettings;
 using LifeAdvisor.Application.Features.Analysis.Queries.GetDecisionHistory;
 using LifeAdvisor.Application.Features.Analysis.Queries.GetAnalysisSettings;
+using LifeAdvisor.Application.Features.Briefing.Commands.ChatWithTwin;
+using LifeAdvisor.Application.Features.Briefing.Commands.RefreshBriefing;
+using LifeAdvisor.Application.Features.Briefing.Queries.GetDailyBriefing;
+using LifeAdvisor.Application.Features.Briefing.Queries.GetTwinOpener;
 using LifeAdvisor.Application.Features.DigitalTwins.Queries.GetOnboardingStatus;
 using LifeAdvisor.Application.Features.Discovery.Commands.SaveInterest;
 using LifeAdvisor.Application.Features.Discovery.Queries.GetSwipeDeck;
 using LifeAdvisor.Application.Features.Discovery.Queries.GetUserInterests;
+using LifeAdvisor.Application.Models;
 using LifeAdvisor.Web.Infrastructure;
 using LifeAdvisor.Web.Models;
 using MediatR;
@@ -19,7 +24,77 @@ public class HomeController(ISender sender) : Controller
     public async Task<IActionResult> Index(CancellationToken ct)
     {
         var model = await BuildDashboardShellModelAsync(new HomeDashboardViewModel(), ct);
+
+        if (model.IsSignedIn && model.IsOnboardingCompleted)
+        {
+            var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId)!;
+            try
+            {
+                model.Briefing = await sender.Send(new GetDailyBriefingQuery(userId), ct);
+            }
+            catch
+            {
+                // The dashboard must never break on a briefing hiccup.
+                model.Briefing = null;
+            }
+        }
+
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> TwinChatOpen(CancellationToken ct)
+    {
+        var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Json(new { ok = false, error = "Please sign in again." });
+
+        var message = await sender.Send(new GetTwinOpenerQuery(userId), ct);
+        return Json(new { ok = true, message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TwinChat([FromBody] TwinChatRequest request, CancellationToken ct)
+    {
+        var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Json(new { ok = false, error = "Please sign in again." });
+
+        if (request is null || string.IsNullOrWhiteSpace(request.Message))
+            return Json(new { ok = false, error = "Type a message first." });
+
+        try
+        {
+            var history = (request.History ?? new())
+                .Select(turn => new ChatTurn(turn.Role, turn.Content))
+                .ToList();
+
+            var reply = await sender.Send(new ChatWithTwinCommand(userId, history, request.Message), ct);
+            return Json(new { ok = true, reply });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Json(new { ok = false, error = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RefreshBriefing(CancellationToken ct)
+    {
+        var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId);
+        if (string.IsNullOrWhiteSpace(userId))
+            return RedirectToAction("Login", "Auth");
+
+        try
+        {
+            await sender.Send(new RefreshBriefingCommand(userId), ct);
+        }
+        catch
+        {
+            // Ignore — Index will render whatever it can.
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("/terms")]

@@ -254,18 +254,244 @@ else
         <main class="dashboard-main">
             <partial name="_OnboardingBanner" model="Model" />
 
-            <section class="dashboard-hero-card">
-                <span class="dashboard-eyebrow">Dashboard</span>
-                <h1 class="dashboard-title">Welcome, @Model.DisplayName</h1>
-                <p class="dashboard-subtitle">Let's start by analyzing your first decision</p>
-                <a href="/Home/Analyze" class="dashboard-primary-cta">Get Started</a>
-            </section>
+            @if (!Model.IsOnboardingCompleted)
+            {
+                <section class="dashboard-hero-card">
+                    <span class="dashboard-eyebrow">Dashboard</span>
+                    <h1 class="dashboard-title">Welcome, @Model.DisplayName</h1>
+                    <p class="dashboard-subtitle">Your twin is almost ready. Finish setting it up and it will start briefing you here.</p>
+                    <a href="/Auth/Onboarding" class="dashboard-primary-cta">Finish onboarding</a>
+                </section>
 
-            <section class="dashboard-info-card">
-                <div class="dashboard-info-heading">Getting Started</div>
-                <p class="dashboard-info-text">Welcome! Your Digital Twin learns from your decisions to provide personalized guidance.</p>
-                <a href="/Home/History" class="dashboard-secondary-link">Open decision history</a>
-            </section>
+                <section class="dashboard-info-card">
+                    <div class="dashboard-info-heading">One quick step</div>
+                    <p class="dashboard-info-text">Once you've onboarded and swiped a few topics in Discover, your twin will greet you each day with news that actually matters to you — and open the conversation itself.</p>
+                    <a href="/Home/Discover" class="dashboard-secondary-link">Go to Discover</a>
+                </section>
+            }
+            else
+            {
+                <section class="briefing-hero reveal">
+                    <div class="briefing-hero-glow" aria-hidden="true"></div>
+                    <div class="briefing-hero-inner">
+                        <div class="briefing-eyebrow">
+                            <span class="briefing-eyebrow-rule"></span>
+                            Your daily briefing · @DateTime.Now.ToString("dddd, MMMM d")
+                        </div>
+                        <p class="briefing-greeting">@(Model.Briefing?.Greeting ?? $"Welcome back, {Model.DisplayName}. Let's see what's worth your attention today.")</p>
+                        <div class="briefing-hero-foot">
+                            <span class="briefing-signoff">— your twin</span>
+                            <div class="briefing-hero-actions">
+                                <button type="button" class="briefing-talk-cta" data-scroll-chat>
+                                    Talk it through with your twin <span aria-hidden="true">→</span>
+                                </button>
+                                <form method="post" action="/Home/RefreshBriefing" class="briefing-refresh-form">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="briefing-refresh" data-loading-text="Refreshing…" title="Generate a fresh briefing">↻ Refresh</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="briefing-layout">
+                    <div class="briefing-feed">
+                        <div class="briefing-feed-head">
+                            <h2 class="briefing-feed-title">In your world today</h2>
+                            <a href="/Home/Interests" class="briefing-feed-link">Tune your interests →</a>
+                        </div>
+
+                        @if (Model.Briefing is not null && Model.Briefing.Items.Count > 0)
+                        {
+                            <div class="briefing-grid">
+                                @foreach (var item in Model.Briefing.Items)
+                                {
+                                    <article class="briefing-card reveal">
+                                        <div class="briefing-card-photo @(string.IsNullOrWhiteSpace(item.ImageUrl) ? "is-nophoto" : "")" style="background-image:url('@item.ImageUrl')">
+                                            <span class="briefing-card-tag">@item.MatchedInterest</span>
+                                        </div>
+                                        <div class="briefing-card-body">
+                                            <div class="briefing-card-meta">
+                                                <span class="briefing-card-source">@item.SourceName</span>
+                                                @if (item.PublishedAt.HasValue)
+                                                {
+                                                    <span class="briefing-card-dot">·</span>
+                                                    <span>@item.PublishedAt.Value.ToLocalTime().ToString("MMM d")</span>
+                                                }
+                                            </div>
+                                            <h3 class="briefing-card-headline">@item.Headline</h3>
+                                            @if (!string.IsNullOrWhiteSpace(item.WhyItMatters))
+                                            {
+                                                <p class="briefing-card-why"><span class="briefing-why-label">Why this matters to you</span>@item.WhyItMatters</p>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(item.Blurb))
+                                            {
+                                                <p class="briefing-card-blurb">@item.Blurb</p>
+                                            }
+                                            <div class="briefing-card-actions">
+                                                <a href="@item.Url" target="_blank" rel="noopener noreferrer" class="briefing-card-link">Read at source <span aria-hidden="true">→</span></a>
+                                                <button type="button" class="briefing-card-discuss" data-discuss="@item.Headline">Discuss</button>
+                                            </div>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <section class="briefing-empty">
+                                <div class="briefing-empty-emoji">📡</div>
+                                <h3 class="briefing-empty-title">No live stories just yet</h3>
+                                <p class="briefing-empty-text">Your twin couldn't pull fresh news this time — it'll keep trying. Meanwhile, you can still talk things through on the right.</p>
+                                <form method="post" action="/Home/RefreshBriefing">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dashboard-primary-cta" data-loading-text="Trying again…">Try again</button>
+                                </form>
+                            </section>
+                        }
+                    </div>
+
+                    <aside class="twinchat" id="twinchat">
+                        <div class="twinchat-head">
+                            <span class="twinchat-avatar" aria-hidden="true">◆</span>
+                            <div class="twinchat-headtext">
+                                <div class="twinchat-title">Your twin</div>
+                                <div class="twinchat-status"><span class="twinchat-dot"></span> started the conversation</div>
+                            </div>
+                        </div>
+                        <div class="twinchat-log" id="twinchatLog" aria-live="polite">
+                            <div class="twinchat-typing" id="twinchatTyping"><span></span><span></span><span></span></div>
+                        </div>
+                        <form class="twinchat-input" id="twinchatForm" data-no-loading autocomplete="off">
+                            <input type="text" id="twinchatText" class="twinchat-text" placeholder="Ask your twin anything…" autocomplete="off" maxlength="600" />
+                            <button type="submit" class="twinchat-send" aria-label="Send message">→</button>
+                        </form>
+                    </aside>
+                </div>
+
+                <script>
+                    (function () {
+                        var log = document.getElementById('twinchatLog');
+                        var typing = document.getElementById('twinchatTyping');
+                        var form = document.getElementById('twinchatForm');
+                        var input = document.getElementById('twinchatText');
+                        var panel = document.getElementById('twinchat');
+
+                        if (log && form && input) {
+                            var history = [];
+                            var busy = false;
+
+                            function scrollDown() { log.scrollTop = log.scrollHeight; }
+
+                            function showTyping(on) {
+                                if (!typing) return;
+                                typing.style.display = on ? 'flex' : 'none';
+                                if (on) { log.appendChild(typing); scrollDown(); }
+                            }
+
+                            function addBubble(role, text) {
+                                var wrap = document.createElement('div');
+                                wrap.className = 'twinchat-msg twinchat-msg--' + (role === 'user' ? 'user' : 'twin');
+                                var bubble = document.createElement('div');
+                                bubble.className = 'twinchat-bubble';
+                                String(text).split('\n').forEach(function (line, i) {
+                                    if (i > 0) bubble.appendChild(document.createElement('br'));
+                                    bubble.appendChild(document.createTextNode(line));
+                                });
+                                wrap.appendChild(bubble);
+                                log.insertBefore(wrap, typing);
+                                scrollDown();
+                            }
+
+                            function setBusy(on) {
+                                busy = on;
+                                input.disabled = on;
+                                showTyping(on);
+                            }
+
+                            // The twin opens the conversation — it speaks first, before the user types.
+                            showTyping(true);
+                            fetch('/Home/TwinChatOpen', { headers: { 'Accept': 'application/json' } })
+                                .then(function (r) { return r.json(); })
+                                .then(function (d) {
+                                    showTyping(false);
+                                    var msg = (d && d.ok && d.message) ? d.message : "Hi — I'm your twin. What's on your mind today?";
+                                    addBubble('assistant', msg);
+                                    history.push({ role: 'assistant', content: msg });
+                                })
+                                .catch(function () {
+                                    showTyping(false);
+                                    var msg = "Hi — I'm your twin. What's on your mind today?";
+                                    addBubble('assistant', msg);
+                                    history.push({ role: 'assistant', content: msg });
+                                });
+
+                            function send(text) {
+                                if (busy || !text || !text.trim()) return;
+                                var message = text.trim();
+                                addBubble('user', message);
+                                var priorHistory = history.slice();
+                                history.push({ role: 'user', content: message });
+                                input.value = '';
+                                setBusy(true);
+                                fetch('/Home/TwinChat', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                    body: JSON.stringify({ message: message, history: priorHistory })
+                                })
+                                    .then(function (r) { return r.json(); })
+                                    .then(function (d) {
+                                        setBusy(false);
+                                        var reply = (d && d.ok && d.reply) ? d.reply
+                                            : (d && d.error) ? d.error
+                                            : "Something went wrong. Try again in a moment.";
+                                        addBubble('assistant', reply);
+                                        history.push({ role: 'assistant', content: reply });
+                                        input.focus();
+                                    })
+                                    .catch(function () {
+                                        setBusy(false);
+                                        addBubble('assistant', "I couldn't reach my thoughts just now. Try again in a moment.");
+                                    });
+                            }
+
+                            form.addEventListener('submit', function (e) {
+                                e.preventDefault();
+                                send(input.value);
+                            });
+
+                            document.addEventListener('click', function (e) {
+                                var discuss = e.target.closest('[data-discuss]');
+                                if (discuss) {
+                                    e.preventDefault();
+                                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    send('What should I make of this headline: "' + discuss.getAttribute('data-discuss') + '"?');
+                                    return;
+                                }
+                                var scroll = e.target.closest('[data-scroll-chat]');
+                                if (scroll) {
+                                    e.preventDefault();
+                                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    input.focus();
+                                }
+                            });
+                        }
+
+                        // Entrance animation for the briefing cards.
+                        var reveals = document.querySelectorAll('.reveal');
+                        if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                            reveals.forEach(function (el) { el.classList.add('is-visible'); });
+                        } else {
+                            var io = new IntersectionObserver(function (entries) {
+                                entries.forEach(function (en) {
+                                    if (en.isIntersecting) { en.target.classList.add('is-visible'); io.unobserve(en.target); }
+                                });
+                            }, { threshold: 0.08 });
+                            reveals.forEach(function (el) { io.observe(el); });
+                        }
+                    })();
+                </script>
+            }
         </main>
     </div>
 }

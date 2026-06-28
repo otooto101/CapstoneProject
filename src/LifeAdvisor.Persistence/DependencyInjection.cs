@@ -31,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<ITwinNarrativeRepository, TwinNarrativeRepository>();
         services.AddScoped<IInterestTopicRepository, InterestTopicRepository>();
         services.AddScoped<ITwinInterestRepository, TwinInterestRepository>();
+        services.AddScoped<IDailyBriefingRepository, DailyBriefingRepository>();
 
         return services;
     }

@@ -13,5 +13,12 @@ namespace LifeAdvisor.Persistence.Repositories
         public async Task<DigitalTwin?> GetByIdentityUserIdAsync(string identityUserId, CancellationToken ct = default)
             => await context.DigitalTwins
                 .FirstOrDefaultAsync(twin => twin.IdentityUserId == identityUserId, ct);
+
+        public async Task<DigitalTwin?> GetWithProfileAsync(string identityUserId, CancellationToken ct = default)
+            => await context.DigitalTwins
+                .Include(twin => twin.LifeStage)
+                .Include(twin => twin.SelectedDomains)
+                    .ThenInclude(domain => domain.DomainOption)
+                .FirstOrDefaultAsync(twin => twin.IdentityUserId == identityUserId, ct);
     }
 }

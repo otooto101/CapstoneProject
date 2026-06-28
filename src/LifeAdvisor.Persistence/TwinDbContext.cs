@@ -18,6 +18,8 @@ public class TwinDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<LifeDomainOption> LifeDomainOptions => Set<LifeDomainOption>();
     public DbSet<InterestTopic> InterestTopics => Set<InterestTopic>();
     public DbSet<TwinInterest> TwinInterests => Set<TwinInterest>();
+    public DbSet<DailyBriefing> DailyBriefings => Set<DailyBriefing>();
+    public DbSet<BriefingItem> BriefingItems => Set<BriefingItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

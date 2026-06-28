@@ -12,6 +12,7 @@ public static class DependencyInjection
     {
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.Configure<SemanticKernelSettings>(configuration.GetSection("SemanticKernel"));
+        services.Configure<NewsSettings>(configuration.GetSection("News"));
 
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
@@ -20,6 +21,9 @@ public static class DependencyInjection
         services.AddScoped<ITextEmbeddingService, SemanticKernelTextEmbeddingService>();
         services.AddScoped<IRelatedDecisionRetriever, RelatedDecisionRetriever>();
         services.AddScoped<IDecisionAnalysisService, SemanticKernelDecisionAnalysisService>();
+        services.AddScoped<INewsService, GNewsService>();
+        services.AddScoped<IDailyBriefingService, DailyBriefingService>();
+        services.AddScoped<ITwinChatService, TwinChatService>();
 
         return services;
     }

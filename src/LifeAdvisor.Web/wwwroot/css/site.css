@@ -3037,3 +3037,548 @@ html {
         height: 440px;
     }
 }
+
+/* ──────────────────────────────────────────────
+   Dashboard — AI daily briefing + interactive twin chat
+────────────────────────────────────────────── */
+.briefing-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent);
+    padding: 2.4rem 2.4rem 2rem;
+    background:
+        radial-gradient(120% 140% at 0% 0%, rgba(201, 168, 106, 0.10), transparent 46%),
+        var(--surface-2);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+}
+
+.briefing-hero-glow {
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(201, 168, 106, 0.16), transparent 60%);
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+.briefing-hero-inner {
+    position: relative;
+    z-index: 1;
+}
+
+.briefing-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--accent);
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.briefing-eyebrow-rule {
+    width: 34px;
+    height: 1px;
+    background: var(--accent-line);
+}
+
+.briefing-greeting {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+    line-height: 1.28;
+    font-weight: 500;
+    color: var(--text);
+    margin: 1.1rem 0 1.4rem;
+    max-width: 46ch;
+    letter-spacing: -0.01em;
+}
+
+.briefing-hero-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.briefing-signoff {
+    color: var(--muted);
+    font-style: italic;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+}
+
+.briefing-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.briefing-talk-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.35rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.briefing-talk-cta:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+}
+
+.briefing-talk-cta span {
+    transition: transform 0.18s ease;
+}
+
+.briefing-talk-cta:hover span {
+    transform: translateX(3px);
+}
+
+.briefing-refresh-form {
+    margin: 0;
+}
+
+.briefing-refresh {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--text-2);
+    padding: 0.75rem 1.05rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.briefing-refresh:hover {
+    border-color: var(--accent-line);
+    color: var(--text);
+}
+
+/* Two-column: news feed + sticky chat */
+.briefing-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.briefing-feed {
+    min-width: 0;
+}
+
+.briefing-feed-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.briefing-feed-title {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0;
+}
+
+.briefing-feed-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 600;
+    transition: color 0.18s ease;
+}
+
+.briefing-feed-link:hover {
+    color: var(--accent);
+}
+
+.briefing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+}
+
+.briefing-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.briefing-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-line);
+    box-shadow: 0 26px 50px rgba(0, 0, 0, 0.34);
+}
+
+.briefing-card-photo {
+    position: relative;
+    height: 158px;
+    width: 100%;
+    background-color: var(--surface-3);
+    background-size: cover;
+    background-position: center;
+}
+
+.briefing-card-photo.is-nophoto {
+    background-image:
+        radial-gradient(circle at 30% 20%, rgba(201, 168, 106, 0.22), transparent 60%),
+        linear-gradient(135deg, var(--surface-3), var(--surface));
+}
+
+.briefing-card-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(11, 11, 12, 0.55));
+}
+
+.briefing-card-tag {
+    position: absolute;
+    z-index: 1;
+    left: 0.85rem;
+    bottom: 0.7rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(11, 11, 12, 0.62);
+    border: 1px solid var(--accent-line);
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+}
+
+.briefing-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem 1.1rem 1.15rem;
+    gap: 0.55rem;
+}
+
+.briefing-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--dim);
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.briefing-card-source {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.briefing-card-headline {
+    font-family: var(--font-serif);
+    font-size: 1.16rem;
+    line-height: 1.25;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0;
+}
+
+.briefing-card-why {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.briefing-why-label {
+    display: block;
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.briefing-card-blurb {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.briefing-card-actions {
+    margin-top: auto;
+    padding-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.briefing-card-link {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: color 0.18s ease;
+}
+
+.briefing-card-link:hover {
+    color: var(--accent);
+}
+
+.briefing-card-discuss {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--text-2);
+    padding: 0.42rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.briefing-card-discuss:hover {
+    border-color: var(--accent-line);
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.briefing-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    border: 1px dashed var(--line-strong);
+    background: var(--surface-2);
+}
+
+.briefing-empty-emoji { font-size: 2rem; }
+
+.briefing-empty-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--text);
+    margin: 0.6rem 0 0.5rem;
+}
+
+.briefing-empty-text {
+    color: var(--muted);
+    max-width: 42ch;
+    margin: 0 auto 1.3rem;
+    line-height: 1.6;
+}
+
+/* Interactive twin chat */
+.twinchat {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 560px;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background:
+        radial-gradient(120% 90% at 100% 0%, rgba(201, 168, 106, 0.08), transparent 50%),
+        var(--surface-2);
+    box-shadow: 0 22px 46px rgba(0, 0, 0, 0.30);
+    overflow: hidden;
+}
+
+.twinchat-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1.1rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.twinchat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-3);
+    border: 1px solid var(--accent-line);
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+.twinchat-title {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.96rem;
+}
+
+.twinchat-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 0.1rem;
+}
+
+.twinchat-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 3px var(--ok-soft);
+}
+
+.twinchat-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.twinchat-msg {
+    display: flex;
+    max-width: 88%;
+}
+
+.twinchat-msg--twin { align-self: flex-start; }
+.twinchat-msg--user { align-self: flex-end; }
+
+.twinchat-bubble {
+    padding: 0.7rem 0.95rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-2);
+}
+
+.twinchat-msg--twin .twinchat-bubble {
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+    color: var(--text);
+}
+
+.twinchat-msg--user .twinchat-bubble {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+}
+
+.twinchat-typing {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    align-self: flex-start;
+    padding: 0.7rem 0.9rem;
+    border-radius: 14px;
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+}
+
+.twinchat-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: twinchat-bounce 1.2s infinite ease-in-out;
+}
+
+.twinchat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.twinchat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes twinchat-bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-4px); opacity: 1; }
+}
+
+.twinchat-input {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.twinchat-text {
+    flex: 1;
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.twinchat-text:focus {
+    outline: none;
+    border-color: var(--accent-line);
+}
+
+.twinchat-text:disabled { opacity: 0.6; }
+
+.twinchat-send {
+    flex-shrink: 0;
+    width: 42px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: var(--ink);
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+.twinchat-send:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 1080px) {
+    .briefing-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .twinchat {
+        position: static;
+        height: 480px;
+        order: -1;
+    }
+}
+
+@media (max-width: 620px) {
+    .briefing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .briefing-hero {
+        padding: 1.8rem 1.4rem;
+    }
+}
