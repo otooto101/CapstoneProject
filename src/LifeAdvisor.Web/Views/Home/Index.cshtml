@@ -340,9 +340,8 @@ else
                         else
                         {
                             <section class="briefing-empty">
-                                <div class="briefing-empty-emoji">📡</div>
-                                <h3 class="briefing-empty-title">No live stories just yet</h3>
-                                <p class="briefing-empty-text">Your twin couldn't pull fresh news this time — it'll keep trying. Meanwhile, you can still talk things through on the right.</p>
+                                <h3 class="briefing-empty-title">No stories right now</h3>
+                                <p class="briefing-empty-text">Your twin couldn't reach the news this time — it'll keep trying. Meanwhile, you can still talk things through on the right.</p>
                                 <form method="post" action="/Home/RefreshBriefing">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="dashboard-primary-cta" data-loading-text="Trying again…">Try again</button>

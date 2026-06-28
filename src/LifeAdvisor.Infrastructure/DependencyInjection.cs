@@ -21,7 +21,9 @@ public static class DependencyInjection
         services.AddScoped<ITextEmbeddingService, SemanticKernelTextEmbeddingService>();
         services.AddScoped<IRelatedDecisionRetriever, RelatedDecisionRetriever>();
         services.AddScoped<IDecisionAnalysisService, SemanticKernelDecisionAnalysisService>();
-        services.AddScoped<INewsService, GNewsService>();
+        services.AddScoped<GNewsService>();
+        services.AddScoped<GoogleNewsRssService>();
+        services.AddScoped<INewsService, PrimaryNewsService>();
         services.AddScoped<IDailyBriefingService, DailyBriefingService>();
         services.AddScoped<ITwinChatService, TwinChatService>();
 

@@ -184,6 +184,7 @@ public class DailyBriefingService(
             prompt.AppendLine($"It is {partOfDay} for them.");
             prompt.AppendLine($"Write a 2-sentence greeting that addresses {name} by name and fits the time of day. Be calm and matter-of-fact — state plainly what's worth their attention, no fluff and no cheerleading.");
             prompt.AppendLine("Then, for each numbered headline below, write ONE sentence (max 24 words, second person 'you') giving your honest take on why it matters and what's at stake. Be plain and concrete — never reassuring filler, never alarmist.");
+            prompt.AppendLine("Write in plain text only. Never use emojis anywhere.");
             prompt.AppendLine("Return EXACTLY this format and nothing else:");
             prompt.AppendLine("GREETING: <greeting>");
             prompt.AppendLine("1: <why it matters>");

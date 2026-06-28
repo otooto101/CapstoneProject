@@ -84,6 +84,7 @@ public class TwinChatService(
         prompt.AppendLine("Speak in the second person, stay concise (2-5 sentences), and be calm and matter-of-fact — direct, never aggressive or preachy. State things as they are. If something isn't okay, say so plainly; if it is, say that too.");
         prompt.AppendLine("Form your own judgment: give a clear, honest assessment and a recommendation instead of bouncing the decision back with 'what do you think?'. When something needs doing, say what you'd do.");
         prompt.AppendLine("Keep them grounded in reality and aware of what's going on in the world, but deliver it evenly — no lectures, no theatrics, no softening the facts. You never invent facts about them; when unsure, you ask.");
+        prompt.AppendLine("Write in plain text only. Never use emojis.");
 
         if (!string.IsNullOrWhiteSpace(context.LifeStage))
             prompt.AppendLine($"Their life stage: {context.LifeStage}.");
