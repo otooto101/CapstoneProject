@@ -72,6 +72,12 @@ public class DailyBriefingService(
 
         var worldArticles = (await worldNewsService.SearchAsync(EssentialNewsQuery, WorldSlots + 2, ct)).ToList();
 
+        // Tag by source, not by guessing from the title: anything from the interest query is an
+        // interest story, everything else is general "Stay informed" world news.
+        var interestUrls = new HashSet<string>(
+            interestArticles.Select(a => a.Url),
+            StringComparer.OrdinalIgnoreCase);
+
         // Interests lead (they're the point); the world slice fills reserved spots; then we
         // backfill with any remaining interest stories. Deduped by URL.
         var articles = BuildArticleMix(interestArticles, worldArticles);
@@ -102,7 +108,7 @@ public class DailyBriefingService(
                 SourceName = article.SourceName,
                 Url = article.Url,
                 ImageUrl = article.ImageUrl,
-                MatchedInterest = MatchInterest(article.Title, interests),
+                MatchedInterest = ResolveTag(article, interestUrls, interests),
                 PublishedAt = article.PublishedAt,
                 DisplayOrder = order
             });
@@ -158,6 +164,23 @@ public class DailyBriefingService(
     {
         var cleaned = Regex.Replace(title, "[^a-zA-Z0-9 ]", " ");
         return Regex.Replace(cleaned, "\\s+", " ").Trim();
+    }
+
+    // Interest-source stories get a topic tag (the keyword match, or the top interest as a
+    // fallback); world-source stories get the general "Stay informed" tag.
+    private static string ResolveTag(
+        Application.Models.NewsArticle article,
+        HashSet<string> interestUrls,
+        IReadOnlyList<TwinInterest> interests)
+    {
+        if (!interestUrls.Contains(article.Url))
+            return GeneralTag;
+
+        var match = MatchInterest(article.Title, interests);
+        if (match != GeneralTag)
+            return match;
+
+        return interests.Count > 0 ? interests[0].Topic.Title : GeneralTag;
     }
 
     private static string MatchInterest(string articleTitle, IReadOnlyList<TwinInterest> interests)
