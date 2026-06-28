@@ -1,7 +1,7 @@
 @model LifeAdvisor.Web.Models.DecisionHistoryViewModel
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "History";
+    ViewData["Title"] = "Decision History";
 }
 
 <div class="dashboard-shell">
@@ -33,17 +33,57 @@
         }
 
         <section class="dashboard-info-card">
-            <div class="dashboard-info-heading">Your decisions</div>
+            <form method="get" asp-controller="Home" asp-action="History" class="decision-history-toolbar" role="search">
+                <input type="hidden" name="status" value="@Model.StatusFilter" />
+                <div class="decision-history-search">
+                    <input type="search"
+                           name="search"
+                           value="@Model.Search"
+                           class="decision-history-search-input"
+                           placeholder="Search your decisions by title or description..."
+                           aria-label="Search decisions" />
+                    <button type="submit" class="dashboard-primary-cta decision-history-search-btn">Search</button>
+                </div>
+
+                <div class="decision-history-filters" role="tablist" aria-label="Filter decisions by status">
+                    <a asp-controller="Home" asp-action="History"
+                       asp-route-status="all" asp-route-search="@Model.Search"
+                       class="decision-history-filter @(Model.StatusFilter == "all" ? "is-active" : string.Empty)">All</a>
+                    <a asp-controller="Home" asp-action="History"
+                       asp-route-status="uncompleted" asp-route-search="@Model.Search"
+                       class="decision-history-filter @(Model.StatusFilter == "uncompleted" ? "is-active" : string.Empty)">Uncompleted</a>
+                    <a asp-controller="Home" asp-action="History"
+                       asp-route-status="completed" asp-route-search="@Model.Search"
+                       class="decision-history-filter @(Model.StatusFilter == "completed" ? "is-active" : string.Empty)">Completed</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="dashboard-info-card">
+            <div class="decision-history-summary">
+                <div class="dashboard-info-heading">Your decisions</div>
+                <span class="decision-history-count">@Model.TotalCount total</span>
+            </div>
 
             @if (Model.Items.Count == 0)
             {
-                <p class="dashboard-info-text">No decisions yet. Analyze a decision first.</p>
+                <p class="dashboard-info-text">
+                    @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.StatusFilter != "all")
+                    {
+                        <text>No decisions match your search or filter. Try clearing them.</text>
+                    }
+                    else
+                    {
+                        <text>No decisions yet. Make a decision first.</text>
+                    }
+                </p>
             }
             else
             {
                 <div class="decision-history-list">
                     @foreach (var item in Model.Items)
                     {
+                        var modalId = $"decision-modal-{item.TwinNarrativeId}";
                         <article class="decision-history-card">
                             <div class="decision-history-header">
                                 <div>
@@ -53,8 +93,6 @@
                                 <span class="decision-history-status @(item.IsCompleted ? "is-completed" : "is-pending")">@item.StatusLabel</span>
                             </div>
 
-                            <div class="decision-history-prompt">@item.Prompt</div>
-
                             @if (!string.IsNullOrWhiteSpace(item.SelectedScenarioTitle))
                             {
                                 <div class="decision-history-selection">
@@ -63,80 +101,179 @@
                                 </div>
                             }
 
-                            @if (item.ScenarioOptions.Count > 0)
-                            {
-                                <div class="decision-history-scenarios">
-                                    @foreach (var scenario in item.ScenarioOptions)
-                                    {
-                                        var isSelected = string.Equals(item.SelectedScenarioTitle, scenario.Title, StringComparison.Ordinal);
-                                        <div class="decision-history-scenario @(isSelected ? "is-selected" : string.Empty)">
-                                            <div class="decision-history-scenario-top">
-                                                <div>
-                                                    <div class="decision-history-scenario-title">@scenario.Title</div>
-                                                    <div class="decision-history-scenario-summary">@scenario.Summary</div>
-                                                </div>
-                                                <div class="decision-history-score-badge">@scenario.Score/100</div>
-                                            </div>
+                            <div class="decision-history-card-actions">
+                                <button type="button"
+                                        class="dashboard-secondary-link decision-history-details-btn"
+                                        data-modal-target="@modalId">
+                                    View details
+                                </button>
+                            </div>
+                        </article>
 
-                                            @if (!string.IsNullOrWhiteSpace(scenario.BestWhen) || !string.IsNullOrWhiteSpace(scenario.MainRisk) || !string.IsNullOrWhiteSpace(scenario.FirstStep))
-                                            {
-                                                <div class="decision-history-scenario-details">
-                                                    @if (!string.IsNullOrWhiteSpace(scenario.BestWhen))
-                                                    {
-                                                        <div class="decision-history-detail">
-                                                            <span class="decision-history-detail-label">Best when</span>
-                                                            <span class="decision-history-detail-text">@scenario.BestWhen</span>
-                                                        </div>
-                                                    }
-
-                                                    @if (!string.IsNullOrWhiteSpace(scenario.MainRisk))
-                                                    {
-                                                        <div class="decision-history-detail">
-                                                            <span class="decision-history-detail-label">Main risk</span>
-                                                            <span class="decision-history-detail-text">@scenario.MainRisk</span>
-                                                        </div>
-                                                    }
-
-                                                    @if (!string.IsNullOrWhiteSpace(scenario.FirstStep))
-                                                    {
-                                                        <div class="decision-history-detail">
-                                                            <span class="decision-history-detail-label">First step</span>
-                                                            <span class="decision-history-detail-text">@scenario.FirstStep</span>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
+                        <div class="decision-modal" id="@modalId" hidden>
+                            <div class="decision-modal-backdrop" data-modal-close="@modalId"></div>
+                            <div class="decision-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="@(modalId)-title">
+                                <div class="decision-modal-header">
+                                    <div>
+                                        <h2 class="decision-modal-title" id="@(modalId)-title">@item.Title</h2>
+                                        <div class="decision-history-date">@item.CreatedAt.ToLocalTime().ToString("f")</div>
+                                    </div>
+                                    <button type="button" class="decision-modal-close" data-modal-close="@modalId" aria-label="Close details">&times;</button>
                                 </div>
 
-                                @if (!item.IsCompleted)
-                                {
-                                    <form method="post" asp-controller="Home" asp-action="CompleteDecisionFromHistory" class="decision-history-complete-form">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="decisionHistoryId" value="@item.TwinNarrativeId" />
+                                <div class="decision-modal-body">
+                                    <div class="decision-modal-section">
+                                        <span class="decision-history-detail-label">What you described</span>
+                                        <p class="decision-modal-prompt">@item.Prompt</p>
+                                    </div>
 
-                                        <div class="decision-history-select-label">Choose decision</div>
-                                        <div class="decision-history-choice-grid">
+                                    @if (item.ScenarioOptions.Count > 0)
+                                    {
+                                        <div class="decision-history-scenarios">
                                             @foreach (var scenario in item.ScenarioOptions)
                                             {
-                                                <label class="decision-history-choice-card">
-                                                    <input type="radio" name="selectedScenarioTitle" value="@scenario.Title" class="decision-history-choice-input" />
-                                                    <span class="decision-history-choice-check">✓</span>
-                                                    <span class="decision-history-choice-title">@scenario.Title</span>
-                                                    <span class="decision-history-choice-score">@scenario.Score/100</span>
-                                                </label>
+                                                var isSelected = string.Equals(item.SelectedScenarioTitle, scenario.Title, StringComparison.Ordinal);
+                                                <div class="decision-history-scenario @(isSelected ? "is-selected" : string.Empty)">
+                                                    <div class="decision-history-scenario-top">
+                                                        <div>
+                                                            <div class="decision-history-scenario-title">@scenario.Title</div>
+                                                            <div class="decision-history-scenario-summary">@scenario.Summary</div>
+                                                        </div>
+                                                        <div class="decision-history-score-badge">@scenario.Score/100</div>
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(scenario.BestWhen) || !string.IsNullOrWhiteSpace(scenario.MainRisk) || !string.IsNullOrWhiteSpace(scenario.FirstStep))
+                                                    {
+                                                        <div class="decision-history-scenario-details">
+                                                            @if (!string.IsNullOrWhiteSpace(scenario.BestWhen))
+                                                            {
+                                                                <div class="decision-history-detail">
+                                                                    <span class="decision-history-detail-label">Best when</span>
+                                                                    <span class="decision-history-detail-text">@scenario.BestWhen</span>
+                                                                </div>
+                                                            }
+
+                                                            @if (!string.IsNullOrWhiteSpace(scenario.MainRisk))
+                                                            {
+                                                                <div class="decision-history-detail">
+                                                                    <span class="decision-history-detail-label">Main risk</span>
+                                                                    <span class="decision-history-detail-text">@scenario.MainRisk</span>
+                                                                </div>
+                                                            }
+
+                                                            @if (!string.IsNullOrWhiteSpace(scenario.FirstStep))
+                                                            {
+                                                                <div class="decision-history-detail">
+                                                                    <span class="decision-history-detail-label">First step</span>
+                                                                    <span class="decision-history-detail-text">@scenario.FirstStep</span>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
                                             }
                                         </div>
 
-                                        <button type="submit" class="dashboard-primary-cta">Mark as complete</button>
-                                    </form>
-                                }
-                            }
-                        </article>
+                                        @if (!item.IsCompleted)
+                                        {
+                                            <form method="post" asp-controller="Home" asp-action="CompleteDecisionFromHistory" class="decision-history-complete-form">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="decisionHistoryId" value="@item.TwinNarrativeId" />
+
+                                                <div class="decision-history-select-label">Choose decision</div>
+                                                <div class="decision-history-choice-grid">
+                                                    @foreach (var scenario in item.ScenarioOptions)
+                                                    {
+                                                        <label class="decision-history-choice-card">
+                                                            <input type="radio" name="selectedScenarioTitle" value="@scenario.Title" class="decision-history-choice-input" />
+                                                            <span class="decision-history-choice-check">&#10003;</span>
+                                                            <span class="decision-history-choice-title">@scenario.Title</span>
+                                                            <span class="decision-history-choice-score">@scenario.Score/100</span>
+                                                        </label>
+                                                    }
+                                                </div>
+
+                                                <button type="submit" class="dashboard-primary-cta">Mark as complete</button>
+                                            </form>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="dashboard-info-text">No scenario options were saved for this decision.</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="decision-history-pagination" aria-label="Decision history pages">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a asp-controller="Home" asp-action="History"
+                               asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search"
+                               asp-route-page="@(Model.Page - 1)"
+                               class="decision-history-page-link">&larr; Previous</a>
+                        }
+                        else
+                        {
+                            <span class="decision-history-page-link is-disabled">&larr; Previous</span>
+                        }
+
+                        <span class="decision-history-page-status">Page @Model.Page of @Model.TotalPages</span>
+
+                        @if (Model.HasNextPage)
+                        {
+                            <a asp-controller="Home" asp-action="History"
+                               asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search"
+                               asp-route-page="@(Model.Page + 1)"
+                               class="decision-history-page-link">Next &rarr;</a>
+                        }
+                        else
+                        {
+                            <span class="decision-history-page-link is-disabled">Next &rarr;</span>
+                        }
+                    </nav>
+                }
             }
         </section>
     </main>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            function closeModal(modal) {
+                if (!modal) return;
+                modal.hidden = true;
+                document.body.classList.remove('decision-modal-open');
+            }
+
+            function openModal(modal) {
+                if (!modal) return;
+                modal.hidden = false;
+                document.body.classList.add('decision-modal-open');
+            }
+
+            document.querySelectorAll('[data-modal-target]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    openModal(document.getElementById(btn.getAttribute('data-modal-target')));
+                });
+            });
+
+            document.querySelectorAll('[data-modal-close]').forEach(function (el) {
+                el.addEventListener('click', function () {
+                    closeModal(document.getElementById(el.getAttribute('data-modal-close')));
+                });
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.decision-modal:not([hidden])').forEach(closeModal);
+                }
+            });
+        })();
+    </script>
+}

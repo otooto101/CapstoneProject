@@ -14,8 +14,10 @@ public class AnalysisSettingsService(UserManager<ApplicationUser> userManager) :
 
         return new AnalysisSettings
         {
-            MaxRelatedDecisions = user.MaxRelatedDecisions <= 0 ? AnalysisSettings.DefaultMaxRelatedDecisions : user.MaxRelatedDecisions,
-            SimilarityThreshold = user.SimilarityThreshold is < 0 or > 1
+            MaxRelatedDecisions = user.MaxRelatedDecisions <= 0
+                ? AnalysisSettings.DefaultMaxRelatedDecisions
+                : user.MaxRelatedDecisions,
+            SimilarityThreshold = user.SimilarityThreshold is <= 0 or > 1
                 ? AnalysisSettings.DefaultSimilarityThreshold
                 : user.SimilarityThreshold
         };
