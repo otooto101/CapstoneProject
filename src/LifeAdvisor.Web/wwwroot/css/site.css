@@ -824,6 +824,7 @@ html, body {
 .dashboard-avatar {
     width: 48px;
     height: 48px;
+    flex-shrink: 0;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -835,6 +836,11 @@ html, body {
     font-size: 1rem;
 }
 
+/* Let the text column shrink so a long email wraps instead of squashing the avatar. */
+.dashboard-profile-card > div {
+    min-width: 0;
+}
+
 .dashboard-profile-name {
     color: var(--text);
     font-weight: 600;
@@ -844,6 +850,7 @@ html, body {
     margin-top: 0.2rem;
     color: var(--muted);
     font-size: 0.86rem;
+    overflow-wrap: anywhere;
 }
 
 .dashboard-sidebar-actions {
@@ -3241,10 +3248,18 @@ html {
     background-position: center;
 }
 
-.briefing-card-photo.is-nophoto {
-    background-image:
-        radial-gradient(circle at 30% 20%, rgba(201, 168, 106, 0.22), transparent 60%),
-        linear-gradient(135deg, var(--surface-3), var(--surface));
+/* Text-only card (no image, e.g. RSS): a clean header with an inline tag and a subtle gold
+   top accent — never an empty photo void. */
+.briefing-card.is-textonly {
+    border-top: 2px solid var(--accent-line);
+}
+
+.briefing-card-tag--inline {
+    position: static;
+    align-self: flex-start;
+    backdrop-filter: none;
+    background: var(--accent-soft);
+    margin-bottom: 0.15rem;
 }
 
 .briefing-card-photo::after {

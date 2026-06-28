@@ -306,11 +306,18 @@ else
                             <div class="briefing-grid">
                                 @foreach (var item in Model.Briefing.Items)
                                 {
-                                    <article class="briefing-card reveal">
-                                        <div class="briefing-card-photo @(string.IsNullOrWhiteSpace(item.ImageUrl) ? "is-nophoto" : "")" style="background-image:url('@item.ImageUrl')">
-                                            <span class="briefing-card-tag">@item.MatchedInterest</span>
-                                        </div>
+                                    <article class="briefing-card @(string.IsNullOrWhiteSpace(item.ImageUrl) ? "is-textonly" : "") reveal">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <div class="briefing-card-photo" style="background-image:url('@item.ImageUrl')">
+                                                <span class="briefing-card-tag">@item.MatchedInterest</span>
+                                            </div>
+                                        }
                                         <div class="briefing-card-body">
+                                            @if (string.IsNullOrWhiteSpace(item.ImageUrl))
+                                            {
+                                                <span class="briefing-card-tag briefing-card-tag--inline">@item.MatchedInterest</span>
+                                            }
                                             <div class="briefing-card-meta">
                                                 <span class="briefing-card-source">@item.SourceName</span>
                                                 @if (item.PublishedAt.HasValue)
