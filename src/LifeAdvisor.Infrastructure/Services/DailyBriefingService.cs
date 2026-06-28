@@ -21,7 +21,8 @@ public class DailyBriefingService(
 {
     private const int MaxItems = 6;
     private const int MaxSearchTerms = 4;
-    private const int WorldSlots = 2;
+    private const int MaxFetch = 10;
+    private const string GeneralTag = "Stay informed";
     private const string EssentialNewsQuery = "world OR politics OR economy OR election OR conflict";
 
     public async Task<DailyBriefing> GetOrCreateTodayAsync(string identityUserId, CancellationToken ct = default)
@@ -59,21 +60,26 @@ public class DailyBriefingService(
     {
         var interests = await twinInterestRepository.ListInterestedByUserAsync(twin.IdentityUserId, ct);
 
-        var query = BuildSearchQuery(interests);
-        var interestArticles = string.IsNullOrEmpty(query)
-            ? []
-            : await newsService.SearchAsync(query, MaxItems - WorldSlots, ct);
+        // A SINGLE news request per briefing (one call is far friendlier to free-tier rate
+        // limits): the user's interests plus an essential world/politics slice so they stay
+        // connected to the world, not just their bubble.
+        var interestQuery = BuildSearchQuery(interests);
+        var query = string.IsNullOrEmpty(interestQuery)
+            ? EssentialNewsQuery
+            : $"{interestQuery} OR {EssentialNewsQuery}";
 
-        // Essential world/political awareness — things they should know regardless of niche
-        // interests, so the twin keeps them connected to the real world, not just their bubble.
-        var worldArticles = await newsService.SearchAsync(EssentialNewsQuery, WorldSlots + 1, ct);
-
-        var articles = MergeArticles(interestArticles, worldArticles, MaxItems);
+        var pool = await newsService.SearchAsync(query, MaxFetch, ct);
 
         // No real news available (no key, no interests, or a provider hiccup): hand back a
         // tasteful, un-persisted briefing so the page renders and we retry next time.
-        if (articles.Count == 0)
+        if (pool.Count == 0)
             return BuildFallbackBriefing(twin, interests);
+
+        // Lead with stories that hit the user's interests, then fill with the world slice.
+        var articles = pool
+            .OrderByDescending(article => MatchInterest(article.Title, interests) != GeneralTag)
+            .Take(MaxItems)
+            .ToList();
 
         var synthesis = await SynthesizeWithTwinAsync(twin, interests, articles, ct);
 
@@ -108,27 +114,6 @@ public class DailyBriefingService(
         return briefing;
     }
 
-    // Interest-driven stories first; fill the rest with essential world news (deduped by URL)
-    // so the briefing always keeps them connected to what's happening, not just their bubble.
-    private static IReadOnlyList<Application.Models.NewsArticle> MergeArticles(
-        IReadOnlyList<Application.Models.NewsArticle> interestArticles,
-        IReadOnlyList<Application.Models.NewsArticle> worldArticles,
-        int max)
-    {
-        var merged = new List<Application.Models.NewsArticle>();
-        var seenUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var article in interestArticles.Concat(worldArticles))
-        {
-            if (merged.Count >= max)
-                break;
-            if (!string.IsNullOrWhiteSpace(article.Url) && seenUrls.Add(article.Url))
-                merged.Add(article);
-        }
-
-        return merged;
-    }
-
     // One combined OR-query from the user's top interests, so a generation costs a single
     // request against the news quota.
     private static string BuildSearchQuery(IReadOnlyList<TwinInterest> interests)
@@ -161,7 +146,7 @@ public class DailyBriefingService(
         }
 
         // No interest keyword hit — this is general/world news they should know regardless.
-        return "Stay informed";
+        return GeneralTag;
     }
 
     private async Task<BriefingSynthesis> SynthesizeWithTwinAsync(
