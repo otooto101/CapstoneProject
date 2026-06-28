@@ -24,9 +24,11 @@ public class GNewsService(IOptions<NewsSettings> options) : INewsService
 
         try
         {
+            // Default sort (publishedAt) returns the latest matching stories; "sortby=relevance"
+            // is too aggressive — for an exact-phrase query it collapses to a single article.
             var url = $"{_settings.BaseUrl.TrimEnd('/')}/search" +
                       $"?q={Uri.EscapeDataString(query)}" +
-                      $"&lang=en&max={Math.Clamp(max, 1, 10)}&sortby=relevance" +
+                      $"&lang=en&max={Math.Clamp(max, 1, 10)}" +
                       $"&apikey={Uri.EscapeDataString(_settings.ApiKey)}";
 
             using var response = await Http.GetAsync(url, ct);
