@@ -233,14 +233,35 @@ public class HomeController(ISender sender) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> History(CancellationToken ct)
+    public async Task<IActionResult> History(string? search, string? status, int page = 1, CancellationToken ct = default)
     {
         var model = await RequireSignedInAsync(new DecisionHistoryViewModel(), ct);
         if (model is null)
             return RedirectToAction("Login", "Auth");
 
         var userId = HttpContext.Session.GetString(WebSessionKeys.CurrentUserId)!;
-        model.Items = await sender.Send(new GetDecisionHistoryQuery(userId), ct);
+
+        var statusFilter = (status ?? "all").ToLowerInvariant();
+        bool? isCompleted = statusFilter switch
+        {
+            "completed" => true,
+            "uncompleted" => false,
+            _ => null
+        };
+
+        if (page < 1)
+            page = 1;
+
+        var result = await sender.Send(
+            new GetDecisionHistoryQuery(userId, search, isCompleted, page, model.PageSize), ct);
+
+        model.Items = result.Items;
+        model.TotalCount = result.TotalCount;
+        model.Page = result.Page;
+        model.PageSize = result.PageSize;
+        model.Search = search;
+        model.StatusFilter = statusFilter is "completed" or "uncompleted" ? statusFilter : "all";
+
         return View(model);
     }
 

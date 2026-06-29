@@ -8,9 +8,9 @@
 </div>
 
 <nav class="dashboard-nav">
-    <a href="/Home" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : string.Empty)">Dashboard</a>
-    <a href="/Home/Analyze" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Analyze" ? "active" : string.Empty)">Analyze</a>
-    <a href="/Home/History" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : string.Empty)">History</a>
+    <a href="/Home" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : string.Empty)">Home</a>
+    <a href="/Home/Analyze" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Analyze" ? "active" : string.Empty)">Make A Decision</a>
+    <a href="/Home/History" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : string.Empty)">Decision History</a>
     <a href="/Home/Discover" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Discover" ? "active" : string.Empty)">Discover</a>
     <a href="/Home/Interests" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Interests" ? "active" : string.Empty)">My Interests</a>
     <a href="/Home/Settings" class="dashboard-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : string.Empty)">Settings</a>

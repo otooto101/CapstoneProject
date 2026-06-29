@@ -21,8 +21,8 @@ public class RelatedDecisionRetriever(
 
         foreach (var narrative in narratives)
         {
-            var narrativeEmbedding = narrative.Embedding is not null
-                ? ToFloatArray(narrative.Embedding!)
+            var narrativeEmbedding = narrative.Embedding is { Length: > 0 }
+                ? narrative.Embedding
                 : (await textEmbeddingService.GenerateAsync(narrative.Content, ct)).ToArray();
 
             var similarity = CosineSimilarity(queryEmbedding.Span, narrativeEmbedding.AsSpan());
@@ -42,9 +42,6 @@ public class RelatedDecisionRetriever(
             .Take(maxRelatedDecisions)
             .ToList();
     }
-
-    private static float[] ToFloatArray(dynamic embedding)
-        => ((IEnumerable<float>)embedding).ToArray();
 
     private static double CosineSimilarity(ReadOnlySpan<float> left, ReadOnlySpan<float> right)
     {
