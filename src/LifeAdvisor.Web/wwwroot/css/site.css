@@ -2842,66 +2842,40 @@ html {
     }
 }
 
-/* Interactive buddy on the dashboard — grab him and drop him anywhere. */
-.brain-buddy.bb-interactive {
+/* Cortex pinned in the dashboard briefing hero: eyes follow the cursor, tap to tickle. */
+.dashboard-main .briefing-hero {
+    min-height: 220px;
+    padding-right: 9rem; /* reserve his column so the greeting never runs under him */
+}
+
+.briefing-hero .brain-buddy {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    left: auto;
+    bottom: auto;
+    width: 118px;
+    transform: translateY(-50%) !important; /* fixed spot; ignore the scroll-walk drift */
     pointer-events: auto;
-    cursor: grab;
-    transform: none !important; /* dragging controls left/top; ignore the scroll-walk drift */
-    z-index: 60;
-    touch-action: none;
-    transition: filter 0.2s ease;
+    cursor: pointer;
+    z-index: 2;
+    filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.45));
 }
 
-.brain-buddy.bb-interactive .bb-bob {
-    pointer-events: none; /* drags register on the whole buddy, not just gaps */
+/* tickled: happy squint + rosy cheeks + a quick giggle wiggle */
+.brain-buddy.is-tickled .bb-eye-open { opacity: 0; }
+.brain-buddy.is-tickled .bb-eye-closed { opacity: 1; }
+.brain-buddy.is-tickled .bb-blush { opacity: 1; }
+.brain-buddy.is-tickled .bb-bob { animation: bb-giggle 0.26s ease-in-out 0s 4; }
+
+@keyframes bb-giggle {
+    0%, 100% { transform: translateY(-2px) rotate(-4deg); }
+    50% { transform: translateY(-2px) rotate(4deg); }
 }
 
-.brain-buddy.bb-interactive.is-grabbed {
-    cursor: grabbing;
-    filter: drop-shadow(0 24px 28px rgba(0, 0, 0, 0.6));
-}
-
-.brain-buddy.bb-interactive.is-grabbed .bb-bob {
-    animation: none; /* hold still while held */
-    transform: scale(1.06);
-}
-
-.bb-bubble {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% - 8px);
-    transform: translateX(-50%) translateY(6px);
-    max-width: 220px;
-    padding: 0.5rem 0.8rem;
-    border-radius: 12px;
-    background: var(--surface-2);
-    border: 1px solid var(--accent-line);
-    color: var(--text);
-    font-family: var(--font-sans);
-    font-size: 0.8rem;
-    font-weight: 600;
-    line-height: 1.3;
-    text-align: center;
-    white-space: nowrap;
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.38);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.bb-bubble.is-show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-.bb-bubble::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: var(--surface-2);
+@media (max-width: 760px) {
+    .dashboard-main .briefing-hero { padding-right: 2.4rem; }
+    .briefing-hero .brain-buddy { display: none; }
 }
 
 /* ──────────────────────────────────────────────
