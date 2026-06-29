@@ -375,6 +375,96 @@ else
                     </aside>
                 </div>
 
+                <partial name="_BrainBuddy" />
+
+                <script>
+                    // Cortex on the dashboard: pick him up, drop him anywhere (saved across visits),
+                    // tap him to jump into the twin chat.
+                    (function () {
+                        var bb = document.getElementById('brainBuddy');
+                        if (!bb || bb.dataset.draggable) return;
+                        bb.dataset.draggable = '1';
+                        bb.classList.add('bb-interactive');
+                        bb.removeAttribute('aria-hidden');
+                        bb.setAttribute('role', 'button');
+                        bb.setAttribute('tabindex', '0');
+                        bb.setAttribute('aria-label', 'Cortex, your twin buddy. Drag to move, or activate to chat.');
+
+                        var bubble = document.createElement('div');
+                        bubble.className = 'bb-bubble';
+                        bb.appendChild(bubble);
+                        var tips = ['Drag me anywhere!', 'Tap me to talk to your twin', "I'm Cortex — drop me wherever you like"];
+                        function say(msg, ms) {
+                            bubble.textContent = msg;
+                            bubble.classList.add('is-show');
+                            clearTimeout(bubble._t);
+                            bubble._t = setTimeout(function () { bubble.classList.remove('is-show'); }, ms || 3200);
+                        }
+
+                        function clamp(v, max) { return Math.min(Math.max(0, v), Math.max(0, max)); }
+
+                        function openChat() {
+                            var panel = document.getElementById('twinchat');
+                            var input = document.getElementById('twinchatText');
+                            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            if (input) setTimeout(function () { input.focus(); }, 320);
+                            say("Let's talk — ask me anything", 2400);
+                        }
+
+                        // Restore where the user last parked him.
+                        try {
+                            var saved = JSON.parse(localStorage.getItem('la-buddy-pos') || 'null');
+                            if (saved && typeof saved.left === 'number') {
+                                bb.style.left = clamp(saved.left, window.innerWidth - bb.offsetWidth) + 'px';
+                                bb.style.top = clamp(saved.top, window.innerHeight - bb.offsetHeight) + 'px';
+                                bb.style.bottom = 'auto';
+                            }
+                        } catch (e) { }
+
+                        var dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+
+                        bb.addEventListener('pointerdown', function (e) {
+                            dragging = true; moved = false;
+                            var r = bb.getBoundingClientRect();
+                            ox = e.clientX - r.left; oy = e.clientY - r.top;
+                            sx = e.clientX; sy = e.clientY;
+                            bb.classList.add('is-grabbed');
+                            try { bb.setPointerCapture(e.pointerId); } catch (er) { }
+                            bb.style.left = r.left + 'px';
+                            bb.style.top = r.top + 'px';
+                            bb.style.bottom = 'auto';
+                            e.preventDefault();
+                        });
+
+                        bb.addEventListener('pointermove', function (e) {
+                            if (!dragging) return;
+                            if (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4) moved = true;
+                            bb.style.left = clamp(e.clientX - ox, window.innerWidth - bb.offsetWidth) + 'px';
+                            bb.style.top = clamp(e.clientY - oy, window.innerHeight - bb.offsetHeight) + 'px';
+                        });
+
+                        function endDrag() {
+                            if (!dragging) return;
+                            dragging = false;
+                            bb.classList.remove('is-grabbed');
+                            if (moved) {
+                                try { localStorage.setItem('la-buddy-pos', JSON.stringify({ left: parseFloat(bb.style.left), top: parseFloat(bb.style.top) })); } catch (e2) { }
+                                say('Comfy here — thanks!', 1800);
+                            } else {
+                                openChat();
+                            }
+                        }
+                        bb.addEventListener('pointerup', endDrag);
+                        bb.addEventListener('pointercancel', endDrag);
+                        bb.addEventListener('mouseenter', function () { if (!dragging) say(tips[Math.floor(Math.random() * tips.length)]); });
+                        bb.addEventListener('keydown', function (e) {
+                            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openChat(); }
+                        });
+
+                        setTimeout(function () { say('Drag me around, or tap me to chat', 4200); }, 1000);
+                    })();
+                </script>
+
                 <script>
                     (function () {
                         var log = document.getElementById('twinchatLog');

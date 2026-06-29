@@ -2842,6 +2842,68 @@ html {
     }
 }
 
+/* Interactive buddy on the dashboard — grab him and drop him anywhere. */
+.brain-buddy.bb-interactive {
+    pointer-events: auto;
+    cursor: grab;
+    transform: none !important; /* dragging controls left/top; ignore the scroll-walk drift */
+    z-index: 60;
+    touch-action: none;
+    transition: filter 0.2s ease;
+}
+
+.brain-buddy.bb-interactive .bb-bob {
+    pointer-events: none; /* drags register on the whole buddy, not just gaps */
+}
+
+.brain-buddy.bb-interactive.is-grabbed {
+    cursor: grabbing;
+    filter: drop-shadow(0 24px 28px rgba(0, 0, 0, 0.6));
+}
+
+.brain-buddy.bb-interactive.is-grabbed .bb-bob {
+    animation: none; /* hold still while held */
+    transform: scale(1.06);
+}
+
+.bb-bubble {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% - 8px);
+    transform: translateX(-50%) translateY(6px);
+    max-width: 220px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--accent-line);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.38);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.bb-bubble.is-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.bb-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--surface-2);
+}
+
 /* ──────────────────────────────────────────────
    Discover — swipe deck
 ────────────────────────────────────────────── */
